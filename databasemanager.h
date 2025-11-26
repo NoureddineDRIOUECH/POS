@@ -5,6 +5,7 @@
 #include <QString>
 #include <QList>
 #include <QMap>
+#include <QCryptographicHash> // For password hashing
 #include "product.h"
 #include "cartitem.h"
 
@@ -27,6 +28,9 @@ public:
     QList<Product> getAllProducts() const;
     Product getProductById(int id) const;
     bool processSale(const QMap<int, CartItem>& cart, double totalAmount);
+    void initialSetup();
+    bool validateUser(const QString& username, const QString& password) const;
+    QSqlDatabase& getDatabase(); // Public getter for m_db
 
 private:
     QSqlDatabase m_db;

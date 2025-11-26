@@ -6,6 +6,7 @@
 #include <QModelIndex>
 #include <QStandardItemModel>
 #include <QStyle> // For standard icons
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -16,32 +17,44 @@ MainWindow::MainWindow(QWidget *parent)
     // Initialize DatabaseManager and create tables
     m_dbManager = new DatabaseManager(); // Use the member variable
     m_dbManager->init();
+    m_dbManager->initialSetup(); // Call initial setup for users
 
-    // Initialize and configure the QSqlTableModel
+    // Initialize and configure the QSqlTableModel for products
     m_productsModel = new QSqlTableModel(this);
     m_productsModel->setTable("Products");
     m_productsModel->select(); // Populate the model with data
 
-    // Set user-friendly header names
+    // Set user-friendly header names for products
     m_productsModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
     m_productsModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
     m_productsModel->setHeaderData(2, Qt::Horizontal, tr("Description"));
     m_productsModel->setHeaderData(3, Qt::Horizontal, tr("Price"));
     m_productsModel->setHeaderData(4, Qt::Horizontal, tr("Quantity"));
 
-    // Link the model to the QTableView
+    // Link the product model to the QTableView
     ui->productsTableView->setModel(m_productsModel);
-
-    // Hide the ID column
-    ui->productsTableView->hideColumn(0); // ID column is at index 0
+    ui->productsTableView->hideColumn(0); // Hide ID
     
+    // Initialize and configure the QSqlTableModel for sales (reports tab)
+    // NOTE: m_dbManager->m_db is private. This will be fixed in the next step.
+    m_salesModel = new QSqlTableModel(this, m_dbManager->getDatabase());
+    m_salesModel->setTable("Sales");
+    m_salesModel->select();
+    m_salesModel->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    m_salesModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Date"));
+    m_salesModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Total Amount"));
+
+    ui->salesTableView->setModel(m_salesModel);
+    ui->salesTableView->hideColumn(0); // Hide ID
+    ui->salesTableView->resizeColumnsToContents();
+
     // Initialize the cart model
     m_cartModel = new QStandardItemModel(0, 3, this);
     m_cartModel->setHorizontalHeaderLabels({"Product", "Quantity", "Subtotal"});
     ui->cartTableView->setModel(m_cartModel);
 
-    setupPosTab();
-    
+    setupPosTab(); // Populate the POS product list
+
     // Set icons for buttons
     ui->addProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogApplyButton));
     ui->editProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogYesButton));
@@ -49,20 +62,17 @@ MainWindow::MainWindow(QWidget *parent)
     ui->completeSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogOkButton));
     ui->cancelSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
     
-    // Connect the list widget's click signal
+    // Connect signals and slots
     connect(ui->posProductListWidget, &QListWidget::itemClicked, this, &MainWindow::onProductListItemClicked);
-    
-    // Connect the sale buttons
     connect(ui->completeSaleButton, &QPushButton::clicked, this, &MainWindow::onCompleteSaleClicked);
     connect(ui->cancelSaleButton, &QPushButton::clicked, this, &MainWindow::onCancelSaleClicked);
-
-    // Connect the search line edit
     connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::on_searchLineEdit_textChanged);
 }
 
 MainWindow::~MainWindow()
 {
-    delete m_productsModel; // Clean up the model
+    delete m_productsModel; // Clean up the product model
+    delete m_salesModel;   // Clean up the sales model
     delete m_dbManager;   // Clean up the database manager
     // m_cartModel is parented to 'this', so it's deleted automatically
     delete ui;
@@ -205,6 +215,7 @@ void MainWindow::onCompleteSaleClicked()
         QMessageBox::information(this, "Success", "Sale completed successfully!");
         onCancelSaleClicked(); // Clear the cart
         m_productsModel->select(); // Refresh inventory view
+        m_salesModel->select();    // Refresh sales view
         setupPosTab(); // Refresh POS product list (to update quantities)
     } else {
         QMessageBox::critical(this, "Error", "Failed to process the sale. Check database connection.");

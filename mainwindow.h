@@ -39,6 +39,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QSqlTableModel *m_productsModel; // Declare the model
+    QSqlTableModel *m_salesModel; // Declare the sales model
     DatabaseManager *m_dbManager;
     QMap<int, CartItem> m_cart; // Key: product_id, Value: CartItem
     QStandardItemModel *m_cartModel;

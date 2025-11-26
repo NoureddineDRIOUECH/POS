@@ -3,6 +3,7 @@
 #include <QSqlError>
 #include <QDebug>
 #include <QVariant>
+#include <QCryptographicHash>
 
 DatabaseManager::DatabaseManager()
 {
@@ -63,6 +64,16 @@ void DatabaseManager::init()
                     "FOREIGN KEY (product_id) REFERENCES Products(id)"
                     ");")) {
         qDebug() << "Error: failed to create SaleItems table:" << query.lastError();
+    }
+
+    // Create Users table
+    if (!query.exec("CREATE TABLE IF NOT EXISTS Users ("
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    "username TEXT NOT NULL UNIQUE, "
+                    "password_hash TEXT NOT NULL, "
+                    "role TEXT NOT NULL DEFAULT 'Admin'"
+                    ");")) {
+        qDebug() << "Error: failed to create Users table:" << query.lastError();
     }
 }
 
@@ -224,4 +235,45 @@ bool DatabaseManager::processSale(const QMap<int, CartItem>& cart, double totalA
 
     // If all operations were successful, commit the transaction
     return m_db.commit();
+}
+
+void DatabaseManager::initialSetup() {
+    // This method should be called once after creating tables.
+    QSqlQuery query;
+    query.exec("SELECT COUNT(*) FROM Users");
+    if (query.next() && query.value(0).toInt() == 0) {
+        qDebug() << "No users found. Creating default admin user.";
+        
+        QString username = "admin";
+        // IMPORTANT: NEVER store plain text passwords!
+        QString password = "admin"; 
+        QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
+
+        QSqlQuery insertQuery;
+        insertQuery.prepare("INSERT INTO Users (username, password_hash, role) VALUES (:user, :pass, 'Admin')");
+        insertQuery.bindValue(":user", username);
+        insertQuery.bindValue(":pass", passwordHash.toHex());
+        if (!insertQuery.exec()) {
+            qDebug() << "Failed to create default admin:" << insertQuery.lastError();
+        }
+    }
+}
+
+bool DatabaseManager::validateUser(const QString& username, const QString& password) const {
+    QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
+
+    QSqlQuery query;
+    query.prepare("SELECT password_hash FROM Users WHERE username = :user");
+    query.bindValue(":user", username);
+    query.exec();
+
+    if (query.next()) {
+        return query.value(0).toByteArray() == passwordHash.toHex();
+    }
+    return false; // User not found
+}
+
+QSqlDatabase& DatabaseManager::getDatabase()
+{
+    return m_db;
 }

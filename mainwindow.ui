@@ -128,6 +128,16 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="reportsTab">
+       <attribute name="title">
+        <string>Reports</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QTableView" name="salesTableView"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
