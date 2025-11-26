@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "databasemanager.h"
 #include "productdialog.h" // Include the dialog header
+#include "saledetaildialog.h" // Include the sale detail dialog header
 #include <QDebug> // Include QDebug for debugging purposes
 #include <QModelIndex>
 #include <QStandardItemModel>
@@ -36,8 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->productsTableView->hideColumn(0); // Hide ID
     
     // Initialize and configure the QSqlTableModel for sales (reports tab)
-    // NOTE: m_dbManager->m_db is private. This will be fixed in the next step.
-    m_salesModel = new QSqlTableModel(this, m_dbManager->getDatabase());
+    m_salesModel = new QSqlTableModel(this, m_dbManager->getDatabase()); 
     m_salesModel->setTable("Sales");
     m_salesModel->select();
     m_salesModel->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
@@ -67,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->completeSaleButton, &QPushButton::clicked, this, &MainWindow::onCompleteSaleClicked);
     connect(ui->cancelSaleButton, &QPushButton::clicked, this, &MainWindow::onCancelSaleClicked);
     connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::on_searchLineEdit_textChanged);
+    connect(ui->salesTableView, &QTableView::doubleClicked, this, &MainWindow::on_salesTableView_doubleClicked); // New connection for sales detail
 }
 
 MainWindow::~MainWindow()
@@ -226,4 +227,16 @@ void MainWindow::onCancelSaleClicked()
 {
     m_cart.clear();
     updateCartView(); // This will clear the table and reset the total
+}
+
+void MainWindow::on_salesTableView_doubleClicked(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+
+    int saleId = m_salesModel->data(m_salesModel->index(index.row(), 0)).toInt(); // Column 0 is ID
+    
+    SaleDetailDialog dialog(this);
+    dialog.setSaleId(saleId, m_dbManager);
+    dialog.exec();
 }

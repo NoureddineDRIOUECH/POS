@@ -277,3 +277,32 @@ QSqlDatabase& DatabaseManager::getDatabase()
 {
     return m_db;
 }
+
+QList<SaleDetailItem> DatabaseManager::getSaleDetails(int saleId) const
+{
+    QList<SaleDetailItem> details;
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return details;
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT P.name, SI.quantity_sold, SI.price_at_sale "
+                  "FROM SaleItems SI JOIN Products P ON SI.product_id = P.id "
+                  "WHERE SI.sale_id = :sale_id");
+    query.bindValue(":sale_id", saleId);
+
+    if (!query.exec()) {
+        qDebug() << "Error: failed to get sale details:" << query.lastError();
+        return details;
+    }
+
+    while (query.next()) {
+        details.append({
+            query.value("name").toString(),
+            query.value("quantity_sold").toInt(),
+            query.value("price_at_sale").toDouble()
+        });
+    }
+    return details;
+}

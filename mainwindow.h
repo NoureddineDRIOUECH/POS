@@ -35,6 +35,7 @@ private slots:
     void onCompleteSaleClicked();
     void onCancelSaleClicked();
     void on_searchLineEdit_textChanged(const QString &text);
+    void on_salesTableView_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;

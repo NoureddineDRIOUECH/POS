@@ -16,6 +16,12 @@ struct ProductData {
     int quantity;
 };
 
+struct SaleDetailItem {
+    QString productName;
+    int quantitySold;
+    double priceAtSale;
+};
+
 class DatabaseManager
 {
 public:
@@ -31,6 +37,7 @@ public:
     void initialSetup();
     bool validateUser(const QString& username, const QString& password) const;
     QSqlDatabase& getDatabase(); // Public getter for m_db
+    QList<SaleDetailItem> getSaleDetails(int saleId) const;
 
 private:
     QSqlDatabase m_db;
