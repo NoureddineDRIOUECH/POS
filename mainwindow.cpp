@@ -5,6 +5,7 @@
 #include <QDebug> // Include QDebug for debugging purposes
 #include <QModelIndex>
 #include <QStandardItemModel>
+#include <QStyle> // For standard icons
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -41,18 +42,29 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupPosTab();
     
+    // Set icons for buttons
+    ui->addProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogApplyButton));
+    ui->editProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogYesButton));
+    ui->deleteProductButton->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
+    ui->completeSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogOkButton));
+    ui->cancelSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
+    
     // Connect the list widget's click signal
     connect(ui->posProductListWidget, &QListWidget::itemClicked, this, &MainWindow::onProductListItemClicked);
     
     // Connect the sale buttons
     connect(ui->completeSaleButton, &QPushButton::clicked, this, &MainWindow::onCompleteSaleClicked);
     connect(ui->cancelSaleButton, &QPushButton::clicked, this, &MainWindow::onCancelSaleClicked);
+
+    // Connect the search line edit
+    connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::on_searchLineEdit_textChanged);
 }
 
 MainWindow::~MainWindow()
 {
     delete m_productsModel; // Clean up the model
     delete m_dbManager;   // Clean up the database manager
+    // m_cartModel is parented to 'this', so it's deleted automatically
     delete ui;
 }
 
@@ -119,6 +131,13 @@ void MainWindow::on_deleteProductButton_clicked()
             QMessageBox::warning(this, "Error", "Failed to delete product from the database.");
         }
     }
+}
+
+void MainWindow::on_searchLineEdit_textChanged(const QString &text)
+{
+    // Filter the QSqlTableModel based on the product name (column 1)
+    m_productsModel->setFilter(QString("name LIKE '%%1%'").arg(text));
+    m_productsModel->select(); // Apply the filter
 }
 
 void MainWindow::setupPosTab()

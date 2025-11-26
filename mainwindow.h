@@ -34,6 +34,7 @@ private slots:
     void updateCartView();
     void onCompleteSaleClicked();
     void onCancelSaleClicked();
+    void on_searchLineEdit_textChanged(const QString &text);
 
 private:
     Ui::MainWindow *ui;
