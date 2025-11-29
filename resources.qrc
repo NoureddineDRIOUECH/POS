@@ -1,10 +1,17 @@
 <RCC>
-    <qresource prefix="/styles">
+    <qresource prefix="/">
         <file>style.qss</file>
-    </qresource>
-    <qresource prefix="/images">
         <file>images/laptop.png</file>
         <file>images/mouse.png</file>
         <file>images/keyboard.png</file>
+        <file>images/plus-circle.svg</file>
+        <file>images/edit.svg</file>
+        <file>images/trash-2.svg</file>
+        <file>images/check-circle.svg</file>
+        <file>images/package.svg</file>
+        <file>images/shopping-cart.svg</file>
+        <file>images/user.svg</file>
+        <file>images/bar-chart-2.svg</file>
+        <file>images/grid.svg</file>
     </qresource>
 </RCC>

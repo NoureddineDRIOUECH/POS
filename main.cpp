@@ -8,8 +8,10 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
-    QFile styleFile(":/styles/style.qss");
-    styleFile.open(QFile::ReadOnly);
+    QFile styleFile(":/style.qss");
+    if (!styleFile.open(QFile::ReadOnly)) {
+        qWarning("Failed to open stylesheet file.");
+    }
     QString styleSheet = QLatin1String(styleFile.readAll());
     a.setStyleSheet(styleSheet);
 

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QSqlTableModel>
+#include <QSortFilterProxyModel>
 #include <QMessageBox> // Added for potential error messages
 #include <QMap>
 #include <QListWidgetItem>
@@ -34,7 +35,7 @@ private slots:
     void on_addProductButton_clicked();
     void on_editProductButton_clicked();
     void on_deleteProductButton_clicked();
-    void onProductListItemClicked(QListWidgetItem *item);
+    void onProductListViewClicked(const QModelIndex &index);
     void updateCartView();
     void onCompleteSaleClicked();
     void onCancelSaleClicked();
@@ -45,15 +46,16 @@ private slots:
     void on_addUserButton_clicked();
     void on_editUserButton_clicked();
     void on_deleteUserButton_clicked();
-    void onProductSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     Ui::MainWindow *ui;
     QSqlTableModel *m_productsModel; // Declare the model
     QSqlTableModel *m_salesModel; // Declare the sales model
     QSqlTableModel *m_usersModel; // Declare the users model
+    QSortFilterProxyModel *m_proxyModel;
     DatabaseManager *m_dbManager;
     QMap<int, CartItem> m_cart; // Key: product_id, Value: CartItem
+    QStandardItemModel *m_posProductsModel;
     QStandardItemModel *m_cartModel;
     User m_currentUser; // Store the currently logged-in user
 

@@ -6,6 +6,8 @@
 #include <QCryptographicHash>
 #include <optional>
 
+#include <QDate>
+
 DatabaseManager::DatabaseManager()
 {
     m_db = QSqlDatabase::addDatabase("QSQLITE");
@@ -436,4 +438,113 @@ void DatabaseManager::addSampleProducts()
         addProduct({ "Mouse", "A wireless mouse", 25.00, 50, ":/images/mouse.png" });
         addProduct({ "Keyboard", "A mechanical keyboard", 75.00, 30, ":/images/keyboard.png" });
     }
+}
+
+double DatabaseManager::getTotalSalesToday() const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return 0.0;
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(*) FROM Sales WHERE DATE(sale_date) = DATE('now')");
+    if (query.exec() && query.next()) {
+        return query.value(0).toDouble();
+    }
+    qDebug() << "Error getting total sales today:" << query.lastError();
+    return 0.0;
+}
+
+double DatabaseManager::getTotalRevenueToday() const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return 0.0;
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT SUM(total_amount) FROM Sales WHERE DATE(sale_date) = DATE('now')");
+    if (query.exec() && query.next()) {
+        return query.value(0).toDouble();
+    }
+    qDebug() << "Error getting total revenue today:" << query.lastError();
+    return 0.0;
+}
+
+int DatabaseManager::getTotalProductsInStock() const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return 0;
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT SUM(quantity) FROM Products");
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt();
+    }
+    qDebug() << "Error getting total products in stock:" << query.lastError();
+    return 0;
+}
+
+QString DatabaseManager::getTopSellingProduct() const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return "N/A";
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT P.name, SUM(SI.quantity_sold) AS total_sold "
+                  "FROM SaleItems SI JOIN Products P ON SI.product_id = P.id "
+                  "GROUP BY P.name "
+                  "ORDER BY total_sold DESC LIMIT 1");
+    if (query.exec() && query.next()) {
+        return query.value("name").toString();
+    }
+    qDebug() << "Error getting top selling product:" << query.lastError();
+    return "N/A";
+}
+
+QMap<QString, double> DatabaseManager::getSalesForLast7Days() const
+{
+    QMap<QString, double> weeklySales;
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return weeklySales;
+    }
+
+    // Initialize with 0 for the last 7 days
+    QStringList daysOrder; // To maintain order for display
+    for (int i = 6; i >= 0; --i) { // Go back 6 days from today
+        QDate date = QDate::currentDate().addDays(-i);
+        QString dayName = date.toString("ddd");
+        weeklySales[dayName] = 0.0;
+        daysOrder.prepend(dayName); // Prepend to keep chronological order
+    }
+
+    QSqlQuery query;
+    // Note: SQLite's STRFTIME('%w', ...) returns 0 for Sunday, 1 for Monday, etc.
+    // Use STRFTIME('%J', ...) for Julian day for date comparison
+    query.prepare("SELECT STRFTIME('%w', sale_date) AS day_of_week, SUM(total_amount) AS daily_sales, "
+                  "STRFTIME('%Y-%m-%d', sale_date) AS sale_date_str "
+                  "FROM Sales "
+                  "WHERE sale_date >= DATE('now', '-7 days') "
+                  "GROUP BY sale_date_str ORDER BY sale_date_str ASC");
+
+    if (!query.exec()) {
+        qDebug() << "Error getting sales for last 7 days:" << query.lastError();
+        return weeklySales;
+    }
+
+    while (query.next()) {
+        QDate saleDate = QDate::fromString(query.value("sale_date_str").toString(), "yyyy-MM-dd");
+        QString dayName = saleDate.toString("ddd");
+        double dailySales = query.value("daily_sales").toDouble();
+        if (weeklySales.contains(dayName)) {
+            weeklySales[dayName] = dailySales;
+        }
+    }
+    return weeklySales;
 }

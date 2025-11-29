@@ -4,11 +4,15 @@
 #include "productdialog.h" // Include the dialog header
 #include "saledetaildialog.h" // Include the sale detail dialog header
 #include "userdialog.h" // Include UserDialog
+#include <QDate>
 #include <QDebug> // Include QDebug for debugging purposes
 #include <QModelIndex>
 #include <QStandardItemModel>
 #include <QStyle> // For standard icons
 #include <QMessageBox>
+
+// Remove 'using namespace QtCharts;'
+// All QtCharts classes will be explicitly qualified with 'QtCharts::'
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     // DatabaseManager is now set from main.cpp, so we don't create it here.
     // The pointer m_dbManager will be null until set.
     m_dbManager = nullptr;
+    m_posProductsModel = nullptr;
+    m_proxyModel = nullptr;
 }
 
 void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
@@ -75,58 +81,41 @@ void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
     m_cartModel->setHorizontalHeaderLabels({"Product", "Quantity", "Subtotal"});
     ui->cartTableView->setModel(m_cartModel);
 
+    // Initialize the proxy model for filtering
+    m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setFilterRole(Qt::DisplayRole); // Filter based on the display role (text)
+
+    // Call setupPosTab to populate m_posProductsModel
+    setupPosTab();
+
+    m_proxyModel->setSourceModel(m_posProductsModel);
+    ui->posProductListView->setModel(m_proxyModel);
+    
     // Configure the POS product list for a grid view
-    ui->posProductListWidget->setViewMode(QListWidget::IconMode);
-    ui->posProductListWidget->setIconSize(QSize(100, 100));
-    ui->posProductListWidget->setGridSize(QSize(130, 130));
-    ui->posProductListWidget->setResizeMode(QListWidget::Adjust);
-    ui->posProductListWidget->setMovement(QListWidget::Static);
-    ui->posProductListWidget->setWordWrap(true);
+    ui->posProductListView->setViewMode(QListView::IconMode);
+    ui->posProductListView->setIconSize(QSize(100, 100));
+    ui->posProductListView->setGridSize(QSize(130, 130));
+    ui->posProductListView->setResizeMode(QListView::Adjust);
+    ui->posProductListView->setMovement(QListView::Static);
+    ui->posProductListView->setWordWrap(true);
 
     // Set icons for buttons
-    ui->addProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogApplyButton));
-    ui->editProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogYesButton));
-    ui->deleteProductButton->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
-    ui->completeSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogOkButton));
-    ui->cancelSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
+    ui->addProductButton->setIcon(QIcon(":/images/plus-circle.svg"));
+    ui->editProductButton->setIcon(QIcon(":/images/edit.svg"));
+    ui->deleteProductButton->setIcon(QIcon(":/images/trash-2.svg"));
+    ui->completeSaleButton->setIcon(QIcon(":/images/check-circle.svg"));
+    ui->cancelSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton)); // Keep this default for now
+    
+    // Set icons for the tabs themselves
+    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->inventoryTab), QIcon(":/images/package.svg"));
+    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->posTab), QIcon(":/images/shopping-cart.svg"));
+    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->reportsTab), QIcon(":/images/bar-chart-2.svg"));
+    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->userManagementTab), QIcon(":/images/user.svg"));
     
     // Connect signals and slots
-    connect(ui->posProductListWidget, &QListWidget::itemClicked, this, &MainWindow::onProductListItemClicked);
+    connect(ui->posProductListView, &QListView::clicked, this, &MainWindow::onProductListViewClicked);
     connect(ui->completeSaleButton, &QPushButton::clicked, this, &MainWindow::onCompleteSaleClicked);
     connect(ui->cancelSaleButton, &QPushButton::clicked, this, &MainWindow::onCancelSaleClicked);
-    // User Management Connections
-    connect(ui->productsTableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onProductSelectionChanged);
-}
-
-void MainWindow::onProductSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    Q_UNUSED(deselected);
-    if (selected.isEmpty()) {
-        ui->inventoryImagePreviewLabel->clear();
-        ui->inventoryImagePreviewLabel->setText("Image Preview");
-        return;
-    }
-
-    QModelIndexList selectedRows = selected.indexes();
-    if (selectedRows.isEmpty()) {
-        return;
-    }
-
-    QModelIndex selectedIndex = selectedRows.first();
-    QString imagePath = m_productsModel->data(m_productsModel->index(selectedIndex.row(), 5)).toString(); // Image Path is column 5
-
-    if (imagePath.isEmpty()) {
-        ui->inventoryImagePreviewLabel->clear();
-        ui->inventoryImagePreviewLabel->setText("No Image");
-    } else {
-        QPixmap pixmap(imagePath);
-        if (pixmap.isNull()) {
-            ui->inventoryImagePreviewLabel->clear();
-            ui->inventoryImagePreviewLabel->setText("Failed to load image");
-        } else {
-            ui->inventoryImagePreviewLabel->setPixmap(pixmap.scaled(ui->inventoryImagePreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        }
-    }
 }
 
 void MainWindow::postLoginSetup(const User &user)
@@ -143,6 +132,9 @@ MainWindow::~MainWindow()
 {
     delete m_productsModel; // Clean up the product model
     delete m_salesModel;   // Clean up the sales model
+    delete m_usersModel; // Clean up the users model
+    delete m_posProductsModel; // Clean up the pos products model
+    delete m_proxyModel; // Clean up the proxy model
     delete m_dbManager;   // Clean up the database manager
     // m_cartModel is parented to 'this', so it's deleted automatically
     delete ui;
@@ -219,25 +211,28 @@ void MainWindow::on_deleteProductButton_clicked()
 
 void MainWindow::on_searchLineEdit_textChanged(const QString &text)
 {
-    // This now filters the visual POS product list
-    for (int i = 0; i < ui->posProductListWidget->count(); ++i) {
-        QListWidgetItem *item = ui->posProductListWidget->item(i);
-        bool match = item->text().contains(text, Qt::CaseInsensitive);
-        item->setHidden(!match);
+    if (m_proxyModel) {
+        m_proxyModel->setFilterFixedString(text);
+        m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     }
 }
 
 void MainWindow::setupPosTab()
 {
-    ui->posProductListWidget->clear();
+    if (!m_posProductsModel) {
+        m_posProductsModel = new QStandardItemModel(this);
+    }
+    m_posProductsModel->clear();
+    ui->posProductListView->setModel(m_posProductsModel);
+
     QList<Product> products = m_dbManager->getAllProducts();
     for (const auto& product : products) {
         if (product.quantity > 0) { // Only show items that are in stock
             // Format text with a newline for better layout in grid view
             QString itemText = QString("%1\n$%2").arg(product.name).arg(product.price, 0, 'f', 2);
-            QListWidgetItem* item = new QListWidgetItem(itemText);
+            QStandardItem* item = new QStandardItem(itemText);
             
-            item->setData(Qt::UserRole, product.id); // Store the ID invisibly with the item
+            item->setData(product.id, Qt::UserRole); // Store the ID invisibly with the item
             item->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
 
             // Load and set the icon
@@ -250,14 +245,14 @@ void MainWindow::setupPosTab()
                     // Optional: set a placeholder icon here
                 }
             }
-            ui->posProductListWidget->addItem(item);
+            m_posProductsModel->appendRow(item);
         }
     }
 }
 
-void MainWindow::onProductListItemClicked(QListWidgetItem *item)
+void MainWindow::onProductListViewClicked(const QModelIndex &index)
 {
-    int productId = item->data(Qt::UserRole).toInt();
+    int productId = index.data(Qt::UserRole).toInt();
 
     // Get product details from the database to ensure they are current
     Product p = m_dbManager->getProductById(productId);

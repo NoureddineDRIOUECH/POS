@@ -56,6 +56,13 @@ public:
     QSqlDatabase& getDatabase(); // Public getter for m_db
     QList<SaleDetailItem> getSaleDetails(int saleId) const;
 
+    // Dashboard functions
+    double getTotalSalesToday() const;
+    double getTotalRevenueToday() const;
+    int getTotalProductsInStock() const;
+    QString getTopSellingProduct() const;
+    QMap<QString, double> getSalesForLast7Days() const;
+
     // User management functions
     bool addUser(const UserData &userData);
     bool updateUser(int id, const UserData &userData);
