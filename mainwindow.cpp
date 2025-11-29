@@ -75,6 +75,14 @@ void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
     m_cartModel->setHorizontalHeaderLabels({"Product", "Quantity", "Subtotal"});
     ui->cartTableView->setModel(m_cartModel);
 
+    // Configure the POS product list for a grid view
+    ui->posProductListWidget->setViewMode(QListWidget::IconMode);
+    ui->posProductListWidget->setIconSize(QSize(100, 100));
+    ui->posProductListWidget->setGridSize(QSize(130, 130));
+    ui->posProductListWidget->setResizeMode(QListWidget::Adjust);
+    ui->posProductListWidget->setMovement(QListWidget::Static);
+    ui->posProductListWidget->setWordWrap(true);
+
     // Set icons for buttons
     ui->addProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogApplyButton));
     ui->editProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogYesButton));
@@ -86,13 +94,7 @@ void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
     connect(ui->posProductListWidget, &QListWidget::itemClicked, this, &MainWindow::onProductListItemClicked);
     connect(ui->completeSaleButton, &QPushButton::clicked, this, &MainWindow::onCompleteSaleClicked);
     connect(ui->cancelSaleButton, &QPushButton::clicked, this, &MainWindow::onCancelSaleClicked);
-    connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::on_searchLineEdit_textChanged);
-    connect(ui->salesTableView, &QTableView::doubleClicked, this, &MainWindow::on_salesTableView_doubleClicked); // New connection for sales detail
-
     // User Management Connections
-    connect(ui->addUserButton, &QPushButton::clicked, this, &MainWindow::on_addUserButton_clicked);
-    connect(ui->editUserButton, &QPushButton::clicked, this, &MainWindow::on_editUserButton_clicked);
-    connect(ui->deleteUserButton, &QPushButton::clicked, this, &MainWindow::on_deleteUserButton_clicked);
     connect(ui->productsTableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onProductSelectionChanged);
 }
 
@@ -153,6 +155,7 @@ void MainWindow::on_addProductButton_clicked()
         ProductData data = dialog.getProductData();
         if (m_dbManager->addProduct(data)) {
             m_productsModel->select(); // Refresh the model
+            setupPosTab(); // Refresh the POS tab
         } else {
             QMessageBox::warning(this, "Error", "Failed to add product to the database.");
         }
@@ -182,6 +185,7 @@ void MainWindow::on_editProductButton_clicked()
         ProductData data = dialog.getProductData();
         if (m_dbManager->updateProduct(id, data)) {
             m_productsModel->select(); // Refresh the model
+            setupPosTab(); // Refresh the POS tab
         } else {
             QMessageBox::warning(this, "Error", "Failed to update product in the database.");
         }
@@ -206,6 +210,7 @@ void MainWindow::on_deleteProductButton_clicked()
     if (reply == QMessageBox::Yes) {
         if (m_dbManager->deleteProduct(id)) {
             m_productsModel->select(); // Refresh the model
+            setupPosTab(); // Refresh the POS tab
         } else {
             QMessageBox::warning(this, "Error", "Failed to delete product from the database.");
         }
@@ -214,9 +219,12 @@ void MainWindow::on_deleteProductButton_clicked()
 
 void MainWindow::on_searchLineEdit_textChanged(const QString &text)
 {
-    // Filter the QSqlTableModel based on the product name (column 1)
-    m_productsModel->setFilter(QString("name LIKE '%%1%'").arg(text));
-    m_productsModel->select(); // Apply the filter
+    // This now filters the visual POS product list
+    for (int i = 0; i < ui->posProductListWidget->count(); ++i) {
+        QListWidgetItem *item = ui->posProductListWidget->item(i);
+        bool match = item->text().contains(text, Qt::CaseInsensitive);
+        item->setHidden(!match);
+    }
 }
 
 void MainWindow::setupPosTab()
@@ -225,18 +233,21 @@ void MainWindow::setupPosTab()
     QList<Product> products = m_dbManager->getAllProducts();
     for (const auto& product : products) {
         if (product.quantity > 0) { // Only show items that are in stock
-            QListWidgetItem* item = new QListWidgetItem(QString("%1 - $%2").arg(product.name).arg(product.price));
+            // Format text with a newline for better layout in grid view
+            QString itemText = QString("%1\n$%2").arg(product.name).arg(product.price, 0, 'f', 2);
+            QListWidgetItem* item = new QListWidgetItem(itemText);
+            
             item->setData(Qt::UserRole, product.id); // Store the ID invisibly with the item
+            item->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
 
-            // Load and scale image if available
+            // Load and set the icon
             if (!product.imagePath.isEmpty()) {
                 QPixmap pixmap(product.imagePath);
                 if (!pixmap.isNull()) {
-                    // Scale pixmap to a reasonable size for the list widget item
-                    QPixmap scaledPixmap = pixmap.scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                    item->setIcon(QIcon(scaledPixmap));
+                    item->setIcon(QIcon(pixmap));
                 } else {
                     qDebug() << "Error loading image for product" << product.name << ":" << product.imagePath;
+                    // Optional: set a placeholder icon here
                 }
             }
             ui->posProductListWidget->addItem(item);

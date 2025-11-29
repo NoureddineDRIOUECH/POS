@@ -8,13 +8,10 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
-    // Load stylesheet
-    QFile file(":/style.qss");
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
-        QTextStream stream(&file);
-        a.setStyleSheet(stream.readAll());
-        file.close();
-    }
+    QFile styleFile(":/styles/style.qss");
+    styleFile.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(styleFile.readAll());
+    a.setStyleSheet(styleSheet);
 
     // Create the one and only DatabaseManager instance
     DatabaseManager dbManager; // Instantiate the manager
