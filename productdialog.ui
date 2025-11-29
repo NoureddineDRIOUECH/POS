@@ -56,6 +56,52 @@
      <item row="3" column="1">
       <widget class="QSpinBox" name="quantitySpinBox"/>
      </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="imageLabel">
+       <property name="text">
+        <string>Image:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <layout class="QHBoxLayout" name="imageLayout">
+       <item>
+        <widget class="QLineEdit" name="imagePathEdit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="browseImageButton">
+         <property name="text">
+          <string>Browse...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QLabel" name="imagePreviewLabel">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>No Image</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

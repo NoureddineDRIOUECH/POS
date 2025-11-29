@@ -45,6 +45,7 @@ private slots:
     void on_addUserButton_clicked();
     void on_editUserButton_clicked();
     void on_deleteUserButton_clicked();
+    void onProductSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     Ui::MainWindow *ui;

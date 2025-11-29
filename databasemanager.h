@@ -15,12 +15,14 @@ struct ProductData {
     QString description;
     double price;
     int quantity;
+    QString imagePath;
 };
 
 struct SaleDetailItem {
     QString productName;
     int quantitySold;
     double priceAtSale;
+    QString imagePath;
 };
 
 struct User {

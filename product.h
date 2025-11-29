@@ -8,6 +8,7 @@ struct Product {
     QString name;
     double price;
     int quantity;
+    QString imagePath;
 };
 
 #endif // PRODUCT_H

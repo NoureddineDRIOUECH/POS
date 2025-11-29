@@ -40,9 +40,30 @@ void DatabaseManager::init()
                     "name TEXT NOT NULL, "
                     "description TEXT, "
                     "price REAL NOT NULL, "
-                    "quantity INTEGER NOT NULL"
+                    "quantity INTEGER NOT NULL, "
+                    "image_path TEXT"
                     ");")) {
         qDebug() << "Error: failed to create Products table:" << query.lastError();
+    } else {
+        // Add image_path column if it doesn't exist
+        if (!query.exec("PRAGMA table_info(Products);")) {
+            qDebug() << "Error: failed to get table info for Products:" << query.lastError();
+        } else {
+            bool columnExists = false;
+            while (query.next()) {
+                if (query.value("name").toString() == "image_path") {
+                    columnExists = true;
+                    break;
+                }
+            }
+            if (!columnExists) {
+                if (!query.exec("ALTER TABLE Products ADD COLUMN image_path TEXT;")) {
+                    qDebug() << "Error: failed to add image_path column to Products table:" << query.lastError();
+                } else {
+                    qDebug() << "Added image_path column to Products table.";
+                }
+            }
+        }
     }
 
     // Create Sales table
@@ -87,12 +108,13 @@ bool DatabaseManager::addProduct(const ProductData &productData)
     }
 
     QSqlQuery query;
-    query.prepare("INSERT INTO Products (name, description, price, quantity) "
-                  "VALUES (:name, :description, :price, :quantity)");
+    query.prepare("INSERT INTO Products (name, description, price, quantity, image_path) "
+                  "VALUES (:name, :description, :price, :quantity, :image_path)");
     query.bindValue(":name", productData.name);
     query.bindValue(":description", productData.description);
     query.bindValue(":price", productData.price);
     query.bindValue(":quantity", productData.quantity);
+    query.bindValue(":image_path", productData.imagePath);
 
     if (!query.exec()) {
         qDebug() << "Error: failed to add product:" << query.lastError();
@@ -130,11 +152,12 @@ bool DatabaseManager::updateProduct(int id, const ProductData &productData)
 
     QSqlQuery query;
     query.prepare("UPDATE Products SET name = :name, description = :description, "
-                  "price = :price, quantity = :quantity WHERE id = :id");
+                  "price = :price, quantity = :quantity, image_path = :image_path WHERE id = :id");
     query.bindValue(":name", productData.name);
     query.bindValue(":description", productData.description);
     query.bindValue(":price", productData.price);
     query.bindValue(":quantity", productData.quantity);
+    query.bindValue(":image_path", productData.imagePath);
     query.bindValue(":id", id);
 
     if (!query.exec()) {
@@ -152,13 +175,14 @@ QList<Product> DatabaseManager::getAllProducts() const
         qDebug() << "Error: database is not open";
         return products;
     }
-    QSqlQuery query("SELECT id, name, price, quantity FROM Products");
+    QSqlQuery query("SELECT id, name, price, quantity, image_path FROM Products");
     while (query.next()) {
         products.append({
             query.value("id").toInt(),
             query.value("name").toString(),
             query.value("price").toDouble(),
-            query.value("quantity").toInt()
+            query.value("quantity").toInt(),
+            query.value("image_path").toString()
         });
     }
     return products;
@@ -173,13 +197,14 @@ Product DatabaseManager::getProductById(int id) const
     }
 
     QSqlQuery query;
-    query.prepare("SELECT id, name, price, quantity FROM Products WHERE id = :id");
+    query.prepare("SELECT id, name, price, quantity, image_path FROM Products WHERE id = :id");
     query.bindValue(":id", id);
     if (query.exec() && query.next()) {
         product.id = query.value("id").toInt();
         product.name = query.value("name").toString();
         product.price = query.value("price").toDouble();
         product.quantity = query.value("quantity").toInt();
+        product.imagePath = query.value("image_path").toString();
     } else {
         qDebug() << "Error: failed to get product by id:" << query.lastError();
     }
@@ -297,7 +322,7 @@ QList<SaleDetailItem> DatabaseManager::getSaleDetails(int saleId) const
     }
 
     QSqlQuery query;
-    query.prepare("SELECT P.name, SI.quantity_sold, SI.price_at_sale "
+    query.prepare("SELECT P.name, SI.quantity_sold, SI.price_at_sale, P.image_path "
                   "FROM SaleItems SI JOIN Products P ON SI.product_id = P.id "
                   "WHERE SI.sale_id = :sale_id");
     query.bindValue(":sale_id", saleId);
@@ -311,7 +336,8 @@ QList<SaleDetailItem> DatabaseManager::getSaleDetails(int saleId) const
         details.append({
             query.value("name").toString(),
             query.value("quantity_sold").toInt(),
-            query.value("price_at_sale").toDouble()
+            query.value("price_at_sale").toDouble(),
+            query.value("image_path").toString()
         });
     }
     return details;
@@ -406,8 +432,8 @@ void DatabaseManager::addSampleProducts()
     if (countQuery.next() && countQuery.value(0).toInt() == 0) {
         qDebug() << "No products found. Creating sample products.";
 
-        addProduct({ "Laptop", "A powerful laptop", 1200.00, 10 });
-        addProduct({ "Mouse", "A wireless mouse", 25.00, 50 });
-        addProduct({ "Keyboard", "A mechanical keyboard", 75.00, 30 });
+        addProduct({ "Laptop", "A powerful laptop", 1200.00, 10, ":/images/laptop.png" });
+        addProduct({ "Mouse", "A wireless mouse", 25.00, 50, ":/images/mouse.png" });
+        addProduct({ "Keyboard", "A mechanical keyboard", 75.00, 30, ":/images/keyboard.png" });
     }
 }

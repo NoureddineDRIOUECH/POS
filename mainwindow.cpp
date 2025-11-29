@@ -37,10 +37,12 @@ void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
     m_productsModel->setHeaderData(2, Qt::Horizontal, tr("Description"));
     m_productsModel->setHeaderData(3, Qt::Horizontal, tr("Price"));
     m_productsModel->setHeaderData(4, Qt::Horizontal, tr("Quantity"));
+    m_productsModel->setHeaderData(5, Qt::Horizontal, tr("Image Path"));
 
     // Link the product model to the QTableView
     ui->productsTableView->setModel(m_productsModel);
     ui->productsTableView->hideColumn(0); // Hide ID
+    ui->productsTableView->hideColumn(5); // Hide Image Path
     
     // Initialize and configure the QSqlTableModel for sales (reports tab)
     m_salesModel = new QSqlTableModel(this, m_dbManager->getDatabase()); 
@@ -91,6 +93,38 @@ void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
     connect(ui->addUserButton, &QPushButton::clicked, this, &MainWindow::on_addUserButton_clicked);
     connect(ui->editUserButton, &QPushButton::clicked, this, &MainWindow::on_editUserButton_clicked);
     connect(ui->deleteUserButton, &QPushButton::clicked, this, &MainWindow::on_deleteUserButton_clicked);
+    connect(ui->productsTableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onProductSelectionChanged);
+}
+
+void MainWindow::onProductSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    Q_UNUSED(deselected);
+    if (selected.isEmpty()) {
+        ui->inventoryImagePreviewLabel->clear();
+        ui->inventoryImagePreviewLabel->setText("Image Preview");
+        return;
+    }
+
+    QModelIndexList selectedRows = selected.indexes();
+    if (selectedRows.isEmpty()) {
+        return;
+    }
+
+    QModelIndex selectedIndex = selectedRows.first();
+    QString imagePath = m_productsModel->data(m_productsModel->index(selectedIndex.row(), 5)).toString(); // Image Path is column 5
+
+    if (imagePath.isEmpty()) {
+        ui->inventoryImagePreviewLabel->clear();
+        ui->inventoryImagePreviewLabel->setText("No Image");
+    } else {
+        QPixmap pixmap(imagePath);
+        if (pixmap.isNull()) {
+            ui->inventoryImagePreviewLabel->clear();
+            ui->inventoryImagePreviewLabel->setText("Failed to load image");
+        } else {
+            ui->inventoryImagePreviewLabel->setPixmap(pixmap.scaled(ui->inventoryImagePreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+    }
 }
 
 void MainWindow::postLoginSetup(const User &user)
@@ -139,9 +173,10 @@ void MainWindow::on_editProductButton_clicked()
     QString description = m_productsModel->data(m_productsModel->index(selectedIndex.row(), 2)).toString();
     double price = m_productsModel->data(m_productsModel->index(selectedIndex.row(), 3)).toDouble();
     int quantity = m_productsModel->data(m_productsModel->index(selectedIndex.row(), 4)).toInt();
+    QString imagePath = m_productsModel->data(m_productsModel->index(selectedIndex.row(), 5)).toString(); // Retrieve image_path
 
     ProductDialog dialog(this);
-    dialog.setProductData(name, description, price, quantity);
+    dialog.setProductData(name, description, price, quantity, imagePath);
 
     if (dialog.exec() == QDialog::Accepted) {
         ProductData data = dialog.getProductData();
@@ -192,6 +227,18 @@ void MainWindow::setupPosTab()
         if (product.quantity > 0) { // Only show items that are in stock
             QListWidgetItem* item = new QListWidgetItem(QString("%1 - $%2").arg(product.name).arg(product.price));
             item->setData(Qt::UserRole, product.id); // Store the ID invisibly with the item
+
+            // Load and scale image if available
+            if (!product.imagePath.isEmpty()) {
+                QPixmap pixmap(product.imagePath);
+                if (!pixmap.isNull()) {
+                    // Scale pixmap to a reasonable size for the list widget item
+                    QPixmap scaledPixmap = pixmap.scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                    item->setIcon(QIcon(scaledPixmap));
+                } else {
+                    qDebug() << "Error loading image for product" << product.name << ":" << product.imagePath;
+                }
+            }
             ui->posProductListWidget->addItem(item);
         }
     }
