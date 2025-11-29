@@ -8,6 +8,7 @@
 #include <QListWidgetItem>
 #include "product.h"
 #include "cartitem.h"
+#include "databasemanager.h" // For User struct
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -26,6 +27,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void setDatabaseManager(DatabaseManager *dbManager);
+    void postLoginSetup(const User &user);
+
 private slots:
     void on_addProductButton_clicked();
     void on_editProductButton_clicked();
@@ -37,14 +41,22 @@ private slots:
     void on_searchLineEdit_textChanged(const QString &text);
     void on_salesTableView_doubleClicked(const QModelIndex &index);
 
+    // User Management Slots
+    void on_addUserButton_clicked();
+    void on_editUserButton_clicked();
+    void on_deleteUserButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSqlTableModel *m_productsModel; // Declare the model
     QSqlTableModel *m_salesModel; // Declare the sales model
+    QSqlTableModel *m_usersModel; // Declare the users model
     DatabaseManager *m_dbManager;
     QMap<int, CartItem> m_cart; // Key: product_id, Value: CartItem
     QStandardItemModel *m_cartModel;
+    User m_currentUser; // Store the currently logged-in user
 
     void setupPosTab();
+    void applyPermissions();
 };
 #endif // MAINWINDOW_H

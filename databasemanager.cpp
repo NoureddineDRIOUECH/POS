@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <QCryptographicHash>
+#include <optional>
 
 DatabaseManager::DatabaseManager()
 {
@@ -48,7 +49,8 @@ void DatabaseManager::init()
     if (!query.exec("CREATE TABLE IF NOT EXISTS Sales ("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                     "sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-                    "total_amount REAL NOT NULL"
+                    "total_amount REAL NOT NULL, "
+                    "user_id INTEGER REFERENCES Users(id)"
                     ");")) {
         qDebug() << "Error: failed to create Sales table:" << query.lastError();
     }
@@ -184,7 +186,7 @@ Product DatabaseManager::getProductById(int id) const
     return product;
 }
 
-bool DatabaseManager::processSale(const QMap<int, CartItem>& cart, double totalAmount) {
+bool DatabaseManager::processSale(const QMap<int, CartItem>& cart, double totalAmount, int userId) {
     // Transactions ensure that all operations succeed or none do.
     if (!m_db.transaction()) {
         qDebug() << "Failed to start transaction:" << m_db.lastError();
@@ -193,8 +195,9 @@ bool DatabaseManager::processSale(const QMap<int, CartItem>& cart, double totalA
 
     // 1. Insert into Sales table
     QSqlQuery saleQuery;
-    saleQuery.prepare("INSERT INTO Sales (total_amount) VALUES (:total)");
+    saleQuery.prepare("INSERT INTO Sales (total_amount, user_id) VALUES (:total, :user_id)");
     saleQuery.bindValue(":total", totalAmount);
+    saleQuery.bindValue(":user_id", userId);
     if (!saleQuery.exec()) {
         qDebug() << "Sale insert failed:" << saleQuery.lastError();
         m_db.rollback();
@@ -259,18 +262,25 @@ void DatabaseManager::initialSetup() {
     }
 }
 
-bool DatabaseManager::validateUser(const QString& username, const QString& password) const {
+std::optional<User> DatabaseManager::validateUser(const QString& username, const QString& password) const {
     QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
 
     QSqlQuery query;
-    query.prepare("SELECT password_hash FROM Users WHERE username = :user");
+    query.prepare("SELECT id, username, password_hash, role FROM Users WHERE username = :user");
     query.bindValue(":user", username);
     query.exec();
 
     if (query.next()) {
-        return query.value(0).toByteArray() == passwordHash.toHex();
+        if (query.value("password_hash").toByteArray() == passwordHash.toHex()) {
+            User user;
+            user.id = query.value("id").toInt();
+            user.username = query.value("username").toString();
+            user.passwordHash = query.value("password_hash").toByteArray(); // Store the hash
+            user.role = query.value("role").toString();
+            return std::optional<User>(user);
+        }
     }
-    return false; // User not found
+    return std::nullopt; // User not found or password incorrect
 }
 
 QSqlDatabase& DatabaseManager::getDatabase()
@@ -305,4 +315,99 @@ QList<SaleDetailItem> DatabaseManager::getSaleDetails(int saleId) const
         });
     }
     return details;
+}
+
+bool DatabaseManager::addUser(const UserData &userData)
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return false;
+    }
+
+    QByteArray passwordHash = QCryptographicHash::hash(userData.password.toUtf8(), QCryptographicHash::Sha256);
+
+    QSqlQuery query;
+    query.prepare("INSERT INTO Users (username, password_hash, role) "
+                  "VALUES (:username, :password_hash, :role)");
+    query.bindValue(":username", userData.username);
+    query.bindValue(":password_hash", passwordHash.toHex());
+    query.bindValue(":role", userData.role);
+
+    if (!query.exec()) {
+        qDebug() << "Error: failed to add user:" << query.lastError();
+        return false;
+    }
+
+    return true;
+}
+
+bool DatabaseManager::updateUser(int id, const UserData &userData)
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return false;
+    }
+
+    QSqlQuery query;
+    bool passwordChanged = !userData.password.isEmpty();
+
+    QString queryString = "UPDATE Users SET username = :username, role = :role";
+    if (passwordChanged) {
+        queryString += ", password_hash = :password_hash";
+    }
+    queryString += " WHERE id = :id";
+
+    query.prepare(queryString);
+
+    query.bindValue(":username", userData.username);
+    query.bindValue(":role", userData.role);
+    if (passwordChanged) {
+        QByteArray passwordHash = QCryptographicHash::hash(userData.password.toUtf8(), QCryptographicHash::Sha256);
+        query.bindValue(":password_hash", passwordHash.toHex());
+    }
+    query.bindValue(":id", id);
+
+    if (!query.exec()) {
+        qDebug() << "Error: failed to update user:" << query.lastError();
+        return false;
+    }
+
+    return true;
+}
+
+bool DatabaseManager::deleteUser(int id)
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return false;
+    }
+
+    QSqlQuery query;
+    query.prepare("DELETE FROM Users WHERE id = :id");
+    query.bindValue(":id", id);
+
+    if (!query.exec()) {
+        qDebug() << "Error: failed to delete user:" << query.lastError();
+        return false;
+    }
+
+    return true;
+}
+
+void DatabaseManager::addSampleProducts()
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return;
+    }
+
+    QSqlQuery countQuery;
+    countQuery.exec("SELECT COUNT(*) FROM Products");
+    if (countQuery.next() && countQuery.value(0).toInt() == 0) {
+        qDebug() << "No products found. Creating sample products.";
+
+        addProduct({ "Laptop", "A powerful laptop", 1200.00, 10 });
+        addProduct({ "Mouse", "A wireless mouse", 25.00, 50 });
+        addProduct({ "Keyboard", "A mechanical keyboard", 75.00, 30 });
+    }
 }

@@ -14,7 +14,8 @@ SOURCES += \
     databasemanager.cpp \
     productdialog.cpp \
     logindialog.cpp \
-    saledetaildialog.cpp
+    saledetaildialog.cpp \
+    userdialog.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -23,13 +24,15 @@ HEADERS += \
     product.h \
     cartitem.h \
     logindialog.h \
-    saledetaildialog.h
+    saledetaildialog.h \
+    userdialog.h
 
 FORMS += \
     mainwindow.ui \
     productdialog.ui \
     logindialog.ui \
-    saledetaildialog.ui
+    saledetaildialog.ui \
+    userdialog.ui
 
 RESOURCES += \
     resources.qrc

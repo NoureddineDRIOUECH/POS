@@ -2,7 +2,8 @@
 #define LOGINDIALOG_H
 
 #include <QDialog>
-#include "databasemanager.h" // For DatabaseManager class
+#include <optional> // Use std::optional
+#include "databasemanager.h" // For DatabaseManager class and User struct
 
 namespace Ui {
 class LoginDialog;
@@ -19,6 +20,7 @@ public:
     ~LoginDialog();
 
     void setDatabaseManager(DatabaseManager* dbManager);
+    User getLoggedInUser() const; // Getter for the logged-in user
 
 signals:
     void loginSuccessful();
@@ -29,6 +31,7 @@ private slots:
 private:
     Ui::LoginDialog *ui;
     DatabaseManager* m_dbManager;
+    std::optional<User> m_loggedInUser; // Store the logged-in user
 };
 
 #endif // LOGINDIALOG_H

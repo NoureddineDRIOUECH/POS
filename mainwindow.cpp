@@ -3,6 +3,7 @@
 #include "databasemanager.h"
 #include "productdialog.h" // Include the dialog header
 #include "saledetaildialog.h" // Include the sale detail dialog header
+#include "userdialog.h" // Include UserDialog
 #include <QDebug> // Include QDebug for debugging purposes
 #include <QModelIndex>
 #include <QStandardItemModel>
@@ -15,11 +16,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Initialize DatabaseManager and create tables
-    m_dbManager = new DatabaseManager(); // Use the member variable
-    m_dbManager->init();
-    m_dbManager->initialSetup(); // Call initial setup for users
+    // DatabaseManager is now set from main.cpp, so we don't create it here.
+    // The pointer m_dbManager will be null until set.
+    m_dbManager = nullptr;
+}
 
+void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
+{
+    m_dbManager = dbManager;
+
+    // Now that we have the db manager, we can set up the models
     // Initialize and configure the QSqlTableModel for products
     m_productsModel = new QSqlTableModel(this);
     m_productsModel->setTable("Products");
@@ -48,12 +54,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->salesTableView->hideColumn(0); // Hide ID
     ui->salesTableView->resizeColumnsToContents();
 
+    // Initialize and configure the QSqlTableModel for users (user management tab)
+    m_usersModel = new QSqlTableModel(this, m_dbManager->getDatabase());
+    m_usersModel->setTable("Users");
+    m_usersModel->select();
+    m_usersModel->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    m_usersModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Username"));
+    m_usersModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Password Hash")); // Will be hidden
+    m_usersModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Role"));
+
+    ui->usersTableView->setModel(m_usersModel);
+    ui->usersTableView->hideColumn(0); // Hide ID
+    ui->usersTableView->hideColumn(2); // Hide password hash
+    ui->usersTableView->resizeColumnsToContents();
+
     // Initialize the cart model
     m_cartModel = new QStandardItemModel(0, 3, this);
     m_cartModel->setHorizontalHeaderLabels({"Product", "Quantity", "Subtotal"});
     ui->cartTableView->setModel(m_cartModel);
-
-    setupPosTab(); // Populate the POS product list
 
     // Set icons for buttons
     ui->addProductButton->setIcon(style()->standardIcon(QStyle::SP_DialogApplyButton));
@@ -68,6 +86,21 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->cancelSaleButton, &QPushButton::clicked, this, &MainWindow::onCancelSaleClicked);
     connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::on_searchLineEdit_textChanged);
     connect(ui->salesTableView, &QTableView::doubleClicked, this, &MainWindow::on_salesTableView_doubleClicked); // New connection for sales detail
+
+    // User Management Connections
+    connect(ui->addUserButton, &QPushButton::clicked, this, &MainWindow::on_addUserButton_clicked);
+    connect(ui->editUserButton, &QPushButton::clicked, this, &MainWindow::on_editUserButton_clicked);
+    connect(ui->deleteUserButton, &QPushButton::clicked, this, &MainWindow::on_deleteUserButton_clicked);
+}
+
+void MainWindow::postLoginSetup(const User &user)
+{
+    m_currentUser = user;
+    qDebug() << "User" << m_currentUser.username << "logged in with role" << m_currentUser.role;
+
+    // Apply permissions and setup tabs now that the user is logged in
+    applyPermissions();
+    setupPosTab();
 }
 
 MainWindow::~MainWindow()
@@ -210,7 +243,7 @@ void MainWindow::onCompleteSaleClicked()
     double total = 0.0;
     for(const auto& item : m_cart) total += item.price * item.quantity;
 
-    bool success = m_dbManager->processSale(m_cart, total);
+    bool success = m_dbManager->processSale(m_cart, total, m_currentUser.id);
 
     if (success) {
         QMessageBox::information(this, "Success", "Sale completed successfully!");
@@ -239,4 +272,101 @@ void MainWindow::on_salesTableView_doubleClicked(const QModelIndex &index)
     SaleDetailDialog dialog(this);
     dialog.setSaleId(saleId, m_dbManager);
     dialog.exec();
+}
+
+// User Management Slots
+
+void MainWindow::on_addUserButton_clicked()
+{
+    UserDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        UserData data = dialog.getUserData();
+        
+        // Basic validation
+        if (data.username.isEmpty() || data.password.isEmpty()) {
+            QMessageBox::warning(this, "Input Error", "Username and password cannot be empty.");
+            return;
+        }
+
+        if (m_dbManager->addUser(data)) {
+            m_usersModel->select(); // Refresh the model
+        } else {
+            QMessageBox::warning(this, "Database Error", "Failed to add user. The username might already exist.");
+        }
+    }
+}
+
+void MainWindow::on_editUserButton_clicked()
+{
+    QModelIndexList selectedRows = ui->usersTableView->selectionModel()->selectedRows();
+    if (selectedRows.isEmpty()) {
+        QMessageBox::information(this, "Select User", "Please select a user to edit.");
+        return;
+    }
+
+    QModelIndex selectedIndex = selectedRows.first();
+    int id = m_usersModel->data(m_usersModel->index(selectedIndex.row(), 0)).toInt();
+    QString username = m_usersModel->data(m_usersModel->index(selectedIndex.row(), 1)).toString();
+    QString role = m_usersModel->data(m_usersModel->index(selectedIndex.row(), 3)).toString();
+
+    UserDialog dialog(this);
+    dialog.setEditMode(true); // Set dialog to edit mode
+    dialog.setUserData(username, role);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        UserData data = dialog.getUserData();
+        
+        // Basic validation
+        if (data.username.isEmpty()) {
+            QMessageBox::warning(this, "Input Error", "Username cannot be empty.");
+            return;
+        }
+
+        if (m_dbManager->updateUser(id, data)) {
+            m_usersModel->select(); // Refresh the model
+        } else {
+            QMessageBox::warning(this, "Database Error", "Failed to update user.");
+        }
+    }
+}
+
+void MainWindow::on_deleteUserButton_clicked()
+{
+    QModelIndexList selectedRows = ui->usersTableView->selectionModel()->selectedRows();
+    if (selectedRows.isEmpty()) {
+        QMessageBox::information(this, "Select User", "Please select a user to delete.");
+        return;
+    }
+
+    QModelIndex selectedIndex = selectedRows.first();
+    int id = m_usersModel->data(m_usersModel->index(selectedIndex.row(), 0)).toInt();
+    QString username = m_usersModel->data(m_usersModel->index(selectedIndex.row(), 1)).toString();
+
+    // Prevent deleting the currently logged-in user
+    if (id == m_currentUser.id) {
+        QMessageBox::warning(this, "Action Forbidden", "You cannot delete the currently logged-in user.");
+        return;
+    }
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete User", "Are you sure you want to delete user '" + username + "'?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        if (m_dbManager->deleteUser(id)) {
+            m_usersModel->select(); // Refresh the model
+        } else {
+            QMessageBox::warning(this, "Database Error", "Failed to delete user from the database.");
+        }
+    }
+}
+
+void MainWindow::applyPermissions()
+{
+    if (m_currentUser.role == "Cashier") {
+        // Cashier has limited access
+        ui->mainTabWidget->removeTab(ui->mainTabWidget->indexOf(ui->inventoryTab));
+        ui->mainTabWidget->removeTab(ui->mainTabWidget->indexOf(ui->reportsTab));
+        ui->mainTabWidget->removeTab(ui->mainTabWidget->indexOf(ui->userManagementTab));
+    }
+    // If the role is "Admin", do nothing, they can see everything.
 }
