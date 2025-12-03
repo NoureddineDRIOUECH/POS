@@ -471,7 +471,7 @@ double DatabaseManager::getTotalStockValue() const
     return 0.0;
 }
 
-int DatabaseManager::getTotalProductsInStock() const
+int DatabaseManager::getTotalItemQuantity() const
 {
     if (!m_db.isOpen()) {
         qDebug() << "Error: database is not open";
@@ -546,4 +546,51 @@ QMap<QString, double> DatabaseManager::getSalesForLast7Days() const
         }
     }
     return weeklySales;
+}
+
+int DatabaseManager::getDistinctProductCount() const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return 0;
+    }
+
+    QSqlQuery query("SELECT COUNT(id) FROM Products WHERE quantity > 0");
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt();
+    }
+    qDebug() << "Error getting distinct product count:" << query.lastError();
+    return 0;
+}
+
+int DatabaseManager::getSalesCountForToday() const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return 0;
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(id) FROM Sales WHERE DATE(sale_date) = DATE('now')");
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt();
+    }
+    qDebug() << "Error getting sales count for today:" << query.lastError();
+    return 0;
+}
+
+int DatabaseManager::getSalesCountForThisMonth() const
+{
+    if (!m_db.isOpen()) {
+        qDebug() << "Error: database is not open";
+        return 0;
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(id) FROM Sales WHERE STRFTIME('%Y-%m', sale_date) = STRFTIME('%Y-%m', 'now')");
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt();
+    }
+    qDebug() << "Error getting sales count for this month:" << query.lastError();
+    return 0;
 }

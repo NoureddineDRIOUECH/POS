@@ -10,6 +10,7 @@
 #include <QStandardItemModel>
 #include <QStyle> // For standard icons
 #include <QMessageBox>
+#include <utility> // Required for std::as_const
 
 // Remove 'using namespace QtCharts;'
 // All QtCharts classes will be explicitly qualified with 'QtCharts::'
@@ -236,7 +237,7 @@ void MainWindow::setupPosTab()
     ui->posProductListView->setModel(m_posProductsModel);
 
     QList<Product> products = m_dbManager->getAllProducts();
-    for (const auto& product : qAsConst(products)) {
+    for (const auto& product : std::as_const(products)) {
         if (product.quantity > 0) { // Only show items that are in stock
             // Format text with a newline for better layout in grid view
             QString itemText = QString("%1\n$%2").arg(product.name).arg(product.price, 0, 'f', 2);
@@ -304,7 +305,7 @@ void MainWindow::onCompleteSaleClicked()
     }
 
     double total = 0.0;
-    for(const auto& item : qAsConst(m_cart)) total += item.price * item.quantity;
+    for(const auto& item : std::as_const(m_cart)) total += item.price * item.quantity;
 
     bool success = m_dbManager->processSale(m_cart, total, m_currentUser.id);
 

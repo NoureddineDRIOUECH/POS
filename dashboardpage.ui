@@ -49,24 +49,31 @@
      </property>
      <item row="0" column="0">
       <widget class="QWidget" name="cardTotalProducts" native="true">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="styleSheet">
+        <string notr="true">#cardTotalProducts {
+border: 1px solid #e0e0e0;
+border-radius: 5px;
+background-color: #ffffff;
+}</string>
+       </property>
+       <layout class="QVBoxLayout" name="cardTotalProductsLayout">
         <item>
-         <widget class="QLabel" name="totalProductsTitle">
+         <widget class="QLabel" name="totalProductsTitleLabel">
           <property name="font">
            <font>
             <pointsize>10</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>Total Products in Stock</string>
+           <string>Total Products</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="totalProductsValue">
+         <widget class="QLabel" name="totalProductsValueLabel">
           <property name="font">
            <font>
-            <pointsize>24</pointsize>
+            <pointsize>22</pointsize>
             <bold>true</bold>
            </font>
           </property>
@@ -79,30 +86,189 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QWidget" name="cardTopSelling" native="true">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+      <widget class="QWidget" name="cardTotalItems" native="true">
+       <property name="styleSheet">
+        <string notr="true">#cardTotalItems {
+border: 1px solid #e0e0e0;
+border-radius: 5px;
+background-color: #ffffff;
+}</string>
+       </property>
+       <layout class="QVBoxLayout" name="cardTotalItemsLayout">
         <item>
-         <widget class="QLabel" name="topSellingTitle">
+         <widget class="QLabel" name="totalItemsTitleLabel">
           <property name="font">
            <font>
             <pointsize>10</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>Top Selling Product</string>
+           <string>Total Items in Stock</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="topSellingValue">
+         <widget class="QLabel" name="totalItemsValueLabel">
           <property name="font">
            <font>
-            <pointsize>24</pointsize>
+            <pointsize>22</pointsize>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>N/A</string>
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QWidget" name="cardStockValue" native="true">
+       <property name="styleSheet">
+        <string notr="true">#cardStockValue {
+border: 1px solid #e0e0e0;
+border-radius: 5px;
+background-color: #ffffff;
+}</string>
+       </property>
+       <layout class="QVBoxLayout" name="cardStockValueLayout">
+        <item>
+         <widget class="QLabel" name="stockValueTitleLabel">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Total Stock Value</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="stockValueValueLabel">
+          <property name="font">
+           <font>
+            <pointsize>22</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>0.00 MAD</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QWidget" name="cardTotalRevenue" native="true">
+       <property name="styleSheet">
+        <string notr="true">#cardTotalRevenue {
+border: 1px solid #e0e0e0;
+border-radius: 5px;
+background-color: #ffffff;
+}</string>
+       </property>
+       <layout class="QVBoxLayout" name="cardTotalRevenueLayout">
+        <item>
+         <widget class="QLabel" name="totalRevenueTitleLabel">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Total Revenue</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="totalRevenueValueLabel">
+          <property name="font">
+           <font>
+            <pointsize>22</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>0.00 MAD</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QWidget" name="cardSalesToday" native="true">
+       <property name="styleSheet">
+        <string notr="true">#cardSalesToday {
+border: 1px solid #e0e0e0;
+border-radius: 5px;
+background-color: #ffffff;
+}</string>
+       </property>
+       <layout class="QVBoxLayout" name="cardSalesTodayLayout">
+        <item>
+         <widget class="QLabel" name="salesTodayTitleLabel">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Sales Today</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="salesTodayValueLabel">
+          <property name="font">
+           <font>
+            <pointsize>22</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QWidget" name="cardSalesMonth" native="true">
+       <property name="styleSheet">
+        <string notr="true">#cardSalesMonth {
+border: 1px solid #e0e0e0;
+border-radius: 5px;
+background-color: #ffffff;
+}</string>
+       </property>
+       <layout class="QVBoxLayout" name="cardSalesMonthLayout">
+        <item>
+         <widget class="QLabel" name="salesMonthTitleLabel">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Sales This Month</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="salesMonthValueLabel">
+          <property name="font">
+           <font>
+            <pointsize>22</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>0</string>
           </property>
          </widget>
         </item>

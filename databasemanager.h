@@ -60,7 +60,10 @@ public:
     double getTotalSales() const;
     double getTotalRevenue() const;
     double getTotalStockValue() const;
-    int getTotalProductsInStock() const;
+    int getTotalItemQuantity() const; // Renamed from getTotalProductsInStock
+    int getDistinctProductCount() const;
+    int getSalesCountForToday() const;
+    int getSalesCountForThisMonth() const;
     QString getTopSellingProduct() const;
     QMap<QString, double> getSalesForLast7Days() const;
 

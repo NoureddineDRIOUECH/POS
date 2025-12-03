@@ -144,6 +144,10 @@ QDialog {
     background-color: #ffffff;
 }
 
+#ProductDialog {
+    background-color: #f8f9fa;
+}
+
 /* ----------------- Scroll Bars ----------------- */
 QScrollBar:vertical {
     border: none;
@@ -212,4 +216,172 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
     font-size: 13px;
     color: #212529;
 }
+/* --- GLOBAL PAGE BACKGROUND --- */
+#DashboardPage {
+    background-color: #f5f6fa;
+    font-family: "Segoe UI", sans-serif;
+}
 
+/* --- TITRE PRINCIPAL --- */
+#dashboardTitleLabel {
+    color: #2c3e50;
+    padding-bottom: 5px;
+}
+
+/* --- CARDS BOX STYLE --- */
+QWidget#cardTotalProducts,
+QWidget#cardTotalItems,
+QWidget#cardStockValue,
+QWidget#cardTotalRevenue,
+QWidget#cardSalesToday,
+QWidget#cardSalesMonth,
+QWidget#weeklySalesCard {
+    border: 1px solid #dcdde1;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 12px;
+}
+
+/* --- CARD TITLE LABELS --- */
+#totalProductsTitleLabel,
+#totalItemsTitleLabel,
+#stockValueTitleLabel,
+#totalRevenueTitleLabel,
+#salesTodayTitleLabel,
+#salesMonthTitleLabel,
+#weeklySalesTitle {
+    color: #7f8fa6;
+    font-weight: bold;
+}
+
+/* --- CARD VALUE LABELS --- */
+#totalProductsValueLabel,
+#totalItemsValueLabel,
+#stockValueValueLabel,
+#totalRevenueValueLabel,
+#salesTodayValueLabel,
+#salesMonthValueLabel {
+    color: #2c3e50;
+}
+
+/* --- HIGHLIGHT COLOR FOR REVENUE / IMPORTANT NUMBERS --- */
+#totalRevenueValueLabel,
+#stockValueValueLabel {
+    color: #27ae60;
+}
+
+/* --- WEEKLY SALES CARD --- */
+#weeklySalesCard {
+    border: 1px solid #dcdde1;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 10px;
+}
+
+/* --- TEXT EDIT STYLE --- */
+#weeklySalesTextEdit {
+    background-color: #fafafa;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    font-size: 12pt;
+    padding: 8px;
+}
+
+/* --- HOVER EFFECTS ON CARDS --- */
+QWidget#cardTotalProducts:hover,
+QWidget#cardTotalItems:hover,
+QWidget#cardStockValue:hover,
+QWidget#cardTotalRevenue:hover,
+QWidget#cardSalesToday:hover,
+QWidget#cardSalesMonth:hover {
+    border: 1px solid #b2bec3;
+}
+
+/* ----------------- Point of Sale Page ----------------- */
+#posPage {
+    background-color: #ffffff;
+}
+
+#posProductListView {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+}
+
+#posProductListView::item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 5px;
+    background-color: #ffffff;
+}
+
+#posProductListView::item:selected {
+    border: 2px solid #0d6efd; /* Blue border for selection */
+    background-color: #f8f9fa;
+}
+
+#posProductListView::item:hover {
+    background-color: #f1f3f5;
+}
+
+#cartTableView {
+    /* Uses global QTableView style, which is fine */
+}
+
+#totalAmountLabel {
+    font-size: 24px;
+    font-weight: bold;
+    color: #212529;
+    padding: 15px;
+    background-color: #f1f3f5;
+    border-radius: 5px;
+    border-top: 1px solid #dee2e6;
+}
+
+#completeSaleButton {
+    background-color: #198754; /* Green */
+}
+
+#completeSaleButton:hover {
+    background-color: #157347;
+}
+
+#cancelSaleButton {
+    background-color: #dc3545; /* Red */
+}
+
+#cancelSaleButton:hover {
+    background-color: #bb2d3b;
+}
+
+/* ----------------- Inventory Page ----------------- */
+#inventoryPage {
+    background-color: #ffffff;
+    padding: 10px;
+}
+
+#searchLineEdit {
+    padding: 8px;
+    font-size: 14px;
+}
+
+#addProductButton {
+    background-color: #198754; /* Green */
+}
+#addProductButton:hover {
+    background-color: #157347;
+}
+
+#editProductButton {
+    background-color: #0d6efd; /* Blue */
+}
+#editProductButton:hover {
+    background-color: #0b5ed7;
+}
+
+#deleteProductButton {
+    background-color: #dc3545; /* Red */
+}
+#deleteProductButton:hover {
+    background-color: #bb2d3b;
+}
