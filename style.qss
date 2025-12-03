@@ -1,85 +1,178 @@
-/* style.qss - A Modern Light Theme */
+/* =================================================================================
+   Modern Professional Stylesheet for POS Application
+   ================================================================================= */
 
+/* ---------------------------------------------------------------------------------
+   1. General & Window
+   --------------------------------------------------------------------------------- */
 QWidget {
-    background-color: #f0f0f0;
-    color: #333333;
-    font-family: "Segoe UI";
-    font-size: 10pt;
+    font-family: "Poppins";
+    color: #212529; /* Dark gray for text */
 }
 
-QMainWindow {
-    background-color: #f0f0f0;
+QMainWindow, QDialog {
+    background-color: #f0f2f5; /* Light, soft background */
 }
 
+/* Specific Style for the Login Dialog Background */
+QDialog#LoginDialog {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #eef2f7, stop: 1 #f0f2f5);
+}
+
+/* ---------------------------------------------------------------------------------
+   2. Tab Widget & Tab Bar
+   --------------------------------------------------------------------------------- */
 QTabWidget::pane {
-    border: 1px solid #cccccc;
-    border-radius: 3px;
+    border: 1px solid #dee2e6;
+    border-top: 0px;
+    border-radius: 0 0 8px 8px;
+    background-color: #ffffff;
+    padding: 10px;
 }
 
 QTabBar::tab {
-    background-color: #e0e0e0;
-    color: #555555;
-    padding: 8px 20px;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    background-color: #e9ecef; /* Light gray for non-selected tabs */
+    color: #495057;
+    padding: 12px 25px;
     margin-right: 2px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+}
+
+QTabBar::tab:hover {
+    background-color: #f8f9fa; /* Lighter on hover */
 }
 
 QTabBar::tab:selected {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #ffffff; /* White for selected tab */
+    color: #007bff; /* Blue for selected tab text */
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+    border-bottom: 1px solid #ffffff; /* Seamless with pane */
 }
 
+/* ---------------------------------------------------------------------------------
+   3. Input Fields (QLineEdit)
+   --------------------------------------------------------------------------------- */
+QLineEdit {
+    background-color: #f8f9fa;
+    color: #333333;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 11pt;
+}
+
+QLineEdit:focus {
+    border: 1px solid #007bff; /* Blue focus border */
+}
+
+/* Specific style for the search bar */
+QLineEdit#searchLineEdit {
+    padding-left: 15px; /* Make space for an icon if added */
+}
+
+/* ---------------------------------------------------------------------------------
+   4. Buttons (QPushButton)
+   --------------------------------------------------------------------------------- */
 QPushButton {
-    background-color: #4CAF50; /* Green */
     color: white;
-    border: 1px solid #4CAF50;
-    padding: 8px 16px;
-    border-radius: 4px;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 10pt;
+    min-width: 120px;
 }
 
 QPushButton:hover {
-    background-color: #45a049;
-    border: 1px solid #45a049;
+    opacity: 0.9; /* General hover effect */
 }
 
 QPushButton:pressed {
-    background-color: #39843c;
-    border: 1px solid #39843c;
+    opacity: 0.8; /* General pressed effect */
 }
 
-QTableView {
+/* Specific Button Colors using Attribute Selectors */
+QPushButton[objectName*="add"] { background-color: #28a745; } /* Green */
+QPushButton[objectName*="add"]:hover { background-color: #218838; }
+
+QPushButton[objectName*="edit"] { background-color: #007bff; } /* Blue */
+QPushButton[objectName*="edit"]:hover { background-color: #0069d9; }
+
+QPushButton[objectName*="delete"] { background-color: #dc3545; } /* Red */
+QPushButton[objectName*="delete"]:hover { background-color: #c82333; }
+
+QPushButton#completeSaleButton { background-color: #28a745; } /* Green */
+QPushButton#completeSaleButton:hover { background-color: #218838; }
+
+QPushButton#cancelSaleButton { background-color: #dc3545; } /* Red */
+QPushButton#cancelSaleButton:hover { background-color: #c82333; }
+
+QPushButton#loginButton { background-color: #007bff; } /* Blue */
+QPushButton#loginButton:hover { background-color: #0069d9; }
+
+
+/* ---------------------------------------------------------------------------------
+   5. Table & List Views
+   --------------------------------------------------------------------------------- */
+QTableView, QListView {
     background-color: #ffffff;
-    border: 1px solid #cccccc;
-    gridline-color: #e0e0e0;
-    border-radius: 4px;
-    selection-background-color: #b0e0e6; /* Light blue for selection */
-    selection-color: #333333;
+    border: 1px solid #dee2e6;
+    gridline-color: #e9ecef;
+    border-radius: 8px;
+    selection-background-color: #cfe2ff; /* Light blue for selection */
+    selection-color: #212529;
+    alternate-background-color: #f8f9fa; /* Alternating row color */
 }
 
-QTableView::item {
-    padding: 5px;
+QTableView::item, QListView::item {
+    padding: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+QListView::item:hover {
+    background-color: #e9ecef; /* Hover highlight for list items */
 }
 
 QHeaderView::section {
-    background-color: #e0e0e0;
-    color: #333333;
-    padding: 5px;
-    border: 1px solid #cccccc;
+    background-color: #f8f9fa;
+    color: #343a40;
+    padding: 10px;
+    border: none;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: bold;
 }
 
-QLineEdit, QTextEdit, QSpinBox, QDoubleSpinBox {
+/* ---------------------------------------------------------------------------------
+   6. Specific Labels & Frames (Login Page)
+   --------------------------------------------------------------------------------- */
+QFrame#centralFrame {
     background-color: #ffffff;
-    color: #333333;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
 }
 
-QLineEdit:focus, QTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
-    border: 1px solid #4CAF50; /* Green focus border */
+QFrame#centralFrame:hover {
+    border: 1px solid #007bff;
 }
 
-QLabel {
-    color: #333333;
+QLabel#errorLabel {
+    color: #dc3545; /* Red for errors */
+    font-size: 9pt;
+}
+
+QLabel#titleLabel {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #343a40;
+}
+
+QLabel#totalAmountLabel {
+    color: #28a745; /* Green for total */
+    font-size: 20pt;
+    font-weight: bold;
+    padding: 10px;
 }

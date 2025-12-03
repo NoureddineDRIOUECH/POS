@@ -2,11 +2,29 @@
 #include "logindialog.h" // Include the new dialog
 #include "databasemanager.h" // Include the db manager
 #include <QApplication>
+#include <QIcon>
 #include <QFile>
 #include <QTextStream>
+#include <QFontDatabase>
+#include <QDir>
+#include <QDebug>
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+    a.setWindowIcon(QIcon(":/images/iconapp.png"));
+
+    // Load custom fonts from resources
+    QDir fontDir(":/fonts/Font/");
+    if (fontDir.exists()) {
+        for (const QString &fontFile : fontDir.entryList(QStringList() << "*.ttf", QDir::Files)) {
+            int fontId = QFontDatabase::addApplicationFont(fontDir.filePath(fontFile));
+            if (fontId == -1) {
+                qWarning() << "Failed to load font:" << fontDir.filePath(fontFile);
+            }
+        }
+    } else {
+        qWarning() << "Font resource directory not found: :/fonts/Font/";
+    }
 
     QFile styleFile(":/style.qss");
     if (!styleFile.open(QFile::ReadOnly)) {

@@ -13,5 +13,28 @@
         <file>images/user.svg</file>
         <file>images/bar-chart-2.svg</file>
         <file>images/grid.svg</file>
+        <file>images/iconapp.png</file>
+        <file>images/poslogo.png</file>
+        <file>pass.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file>Font/Poppins-Black.ttf</file>
+        <file>Font/Poppins-BlackItalic.ttf</file>
+        <file>Font/Poppins-Bold.ttf</file>
+        <file>Font/Poppins-BoldItalic.ttf</file>
+        <file>Font/Poppins-ExtraBold.ttf</file>
+        <file>Font/Poppins-ExtraBoldItalic.ttf</file>
+        <file>Font/Poppins-ExtraLight.ttf</file>
+        <file>Font/Poppins-ExtraLightItalic.ttf</file>
+        <file>Font/Poppins-Italic.ttf</file>
+        <file>Font/Poppins-Light.ttf</file>
+        <file>Font/Poppins-LightItalic.ttf</file>
+        <file>Font/Poppins-Medium.ttf</file>
+        <file>Font/Poppins-MediumItalic.ttf</file>
+        <file>Font/Poppins-Regular.ttf</file>
+        <file>Font/Poppins-SemiBold.ttf</file>
+        <file>Font/Poppins-SemiBoldItalic.ttf</file>
+        <file>Font/Poppins-Thin.ttf</file>
+        <file>Font/Poppins-ThinItalic.ttf</file>
     </qresource>
 </RCC>

@@ -27,6 +27,7 @@ signals:
 
 private slots:
     void on_loginButton_clicked();
+    void clearErrorLabel();
 
 private:
     Ui::LoginDialog *ui;
