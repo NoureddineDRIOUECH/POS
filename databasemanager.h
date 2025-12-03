@@ -57,8 +57,9 @@ public:
     QList<SaleDetailItem> getSaleDetails(int saleId) const;
 
     // Dashboard functions
-    double getTotalSalesToday() const;
-    double getTotalRevenueToday() const;
+    double getTotalSales() const;
+    double getTotalRevenue() const;
+    double getTotalStockValue() const;
     int getTotalProductsInStock() const;
     QString getTopSellingProduct() const;
     QMap<QString, double> getSalesForLast7Days() const;

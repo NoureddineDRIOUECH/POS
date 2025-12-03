@@ -440,7 +440,7 @@ void DatabaseManager::addSampleProducts()
     }
 }
 
-double DatabaseManager::getTotalSalesToday() const
+double DatabaseManager::getTotalRevenue() const
 {
     if (!m_db.isOpen()) {
         qDebug() << "Error: database is not open";
@@ -448,27 +448,26 @@ double DatabaseManager::getTotalSalesToday() const
     }
 
     QSqlQuery query;
-    query.prepare("SELECT COUNT(*) FROM Sales WHERE DATE(sale_date) = DATE('now')");
+    query.prepare("SELECT SUM(total_amount) FROM Sales");
     if (query.exec() && query.next()) {
         return query.value(0).toDouble();
     }
-    qDebug() << "Error getting total sales today:" << query.lastError();
+    qDebug() << "Error getting total revenue:" << query.lastError();
     return 0.0;
 }
 
-double DatabaseManager::getTotalRevenueToday() const
+double DatabaseManager::getTotalStockValue() const
 {
     if (!m_db.isOpen()) {
         qDebug() << "Error: database is not open";
         return 0.0;
     }
 
-    QSqlQuery query;
-    query.prepare("SELECT SUM(total_amount) FROM Sales WHERE DATE(sale_date) = DATE('now')");
+    QSqlQuery query("SELECT SUM(price * quantity) FROM Products");
     if (query.exec() && query.next()) {
         return query.value(0).toDouble();
     }
-    qDebug() << "Error getting total revenue today:" << query.lastError();
+    qDebug() << "Error getting total stock value:" << query.lastError();
     return 0.0;
 }
 

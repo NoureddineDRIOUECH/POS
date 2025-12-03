@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
+    <width>1280</width>
     <height>800</height>
    </rect>
   </property>
@@ -14,81 +14,150 @@
    <string>POS System</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QHBoxLayout" name="mainLayout">
     <property name="spacing">
-     <number>10</number>
+     <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>10</number>
+     <number>0</number>
     </property>
     <property name="topMargin">
-     <number>10</number>
+     <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>10</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>10</number>
+     <number>0</number>
     </property>
     <item>
-     <widget class="QTabWidget" name="mainTabWidget">
-      <property name="font">
-       <font>
-        <family>Poppins</family>
-       </font>
+     <widget class="QWidget" name="sidebarWidget">
+      <property name="minimumSize">
+       <size>
+        <width>220</width>
+        <height>0</height>
+       </size>
       </property>
-      <property name="currentIndex">
-       <number>0</number>
+      <property name="maximumSize">
+       <size>
+        <width>220</width>
+        <height>16777215</height>
+       </size>
       </property>
-      <widget class="QWidget" name="inventoryTab">
-       <attribute name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/images/grid.svg</normaloff>:/images/grid.svg</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>Inventory</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="searchLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_sidebar">
+       <item>
+        <widget class="QLabel" name="logoLabel">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="resources.qrc">:/images/poslogo.png</pixmap>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="navigationListWidget">
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="contentAreaWidget" native="true">
+      <property name="styleSheet">
+       <string notr="true">#contentAreaWidget {
+    padding: 10px;
+}</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_content">
+       <item>
+        <widget class="QWidget" name="statsBarWidget" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>80</height>
+          </size>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_stats">
           <item>
-           <widget class="QLabel" name="searchIcon">
-            <property name="minimumSize">
-             <size>
-              <width>24</width>
-              <height>24</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>24</width>
-              <height>24</height>
-             </size>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="resources.qrc">:/images/edit.svg</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
+           <widget class="QWidget" name="revenueWidget" native="true">
+            <layout class="QVBoxLayout" name="verticalLayout_revenue">
+             <item>
+              <widget class="QLabel" name="revenueTitleLabel">
+               <property name="text">
+                <string>Revenue</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="revenueValueLabel">
+               <property name="text">
+                <string>$0.00</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="searchLineEdit">
-            <property name="placeholderText">
-             <string>Search products...</string>
-            </property>
+           <widget class="QWidget" name="stockValueWidget" native="true">
+            <layout class="QVBoxLayout" name="verticalLayout_stock">
+             <item>
+              <widget class="QLabel" name="stockValueTitleLabel">
+               <property name="text">
+                <string>Stock Value</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="stockValueLabel">
+               <property name="text">
+                <string>$0.00</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QTableView" name="productsTableView"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <spacer name="horizontalSpacer_2">
+           <spacer name="statsSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -100,204 +169,246 @@
             </property>
            </spacer>
           </item>
-          <item>
-           <widget class="QPushButton" name="addProductButton">
-            <property name="text">
-             <string>Add Product</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/plus-circle.svg</normaloff>:/images/plus-circle.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="editProductButton">
-            <property name="text">
-             <string>Edit Product</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/edit.svg</normaloff>:/images/edit.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="deleteProductButton">
-            <property name="text">
-             <string>Delete Product</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/trash-2.svg</normaloff>:/images/trash-2.svg</iconset>
-            </property>
-           </widget>
-          </item>
          </layout>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="posTab">
-       <attribute name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/images/shopping-cart.svg</normaloff>:/images/shopping-cart.svg</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>Point of Sale</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QSplitter" name="splitter">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <widget class="QListView" name="posProductListView"/>
-          <widget class="QWidget" name="layoutWidget">
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <item>
-             <widget class="QTableView" name="cartTableView"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="totalAmountLabel">
-              <property name="font">
-               <font>
-                <family>Poppins</family>
-                <pointsize>18</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Total: $0.00</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QStackedWidget" name="contentStackedWidget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="posPage">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QSplitter" name="splitter">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <widget class="QListView" name="posProductListView"/>
+             <widget class="QWidget" name="layoutWidget">
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QTableView" name="cartTableView"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="totalAmountLabel">
+                 <property name="font">
+                  <font>
+                   <family>Poppins</family>
+                   <pointsize>18</pointsize>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Total: $0.00</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <spacer name="horizontalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="completeSaleButton">
+                   <property name="text">
+                    <string>Complete Sale</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/images/check-circle.svg</normaloff>:/images/check-circle.svg</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="cancelSaleButton">
+                   <property name="text">
+                    <string>Cancel Sale</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/images/trash-2.svg</normaloff>:/images/trash-2.svg</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="completeSaleButton">
-                <property name="text">
-                 <string>Complete Sale</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="resources.qrc">
-                  <normaloff>:/images/check-circle.svg</normaloff>:/images/check-circle.svg</iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="cancelSaleButton">
-                <property name="text">
-                 <string>Cancel Sale</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="resources.qrc">
-                  <normaloff>:/images/trash-2.svg</normaloff>:/images/trash-2.svg</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
+            </widget>
+           </item>
+          </layout>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="reportsTab">
-       <attribute name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/images/bar-chart-2.svg</normaloff>:/images/bar-chart-2.svg</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>Reports</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QTableView" name="salesTableView"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="userManagementTab">
-       <attribute name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/images/user.svg</normaloff>:/images/user.svg</iconset>
-       </attribute>
-       <attribute name="title">
-        <string>User Management</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <widget class="QTableView" name="usersTableView"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="addUserButton">
-            <property name="text">
-             <string>Add User</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/plus-circle.svg</normaloff>:/images/plus-circle.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="editUserButton">
-            <property name="text">
-             <string>Edit User</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/edit.svg</normaloff>:/images/edit.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="deleteUserButton">
-            <property name="text">
-             <string>Delete User</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/images/trash-2.svg</normaloff>:/images/trash-2.svg</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
+         <widget class="QWidget" name="inventoryPage">
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <layout class="QHBoxLayout" name="searchLayout">
+             <item>
+              <widget class="QLabel" name="searchIcon">
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="pixmap">
+                <pixmap resource="resources.qrc">:/images/edit.svg</pixmap>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="searchLineEdit">
+               <property name="placeholderText">
+                <string>Search products...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTableView" name="productsTableView"/>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="addProductButton">
+               <property name="text">
+                <string>Add Product</string>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/images/plus-circle.svg</normaloff>:/images/plus-circle.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editProductButton">
+               <property name="text">
+                <string>Edit Product</string>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/images/edit.svg</normaloff>:/images/edit.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="deleteProductButton">
+               <property name="text">
+                <string>Delete Product</string>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/images/trash-2.svg</normaloff>:/images/trash-2.svg</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="reportsPage">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QTableView" name="salesTableView"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="usersPage">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QTableView" name="usersTableView"/>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="addUserButton">
+               <property name="text">
+                <string>Add User</string>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/images/plus-circle.svg</normaloff>:/images/plus-circle.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editUserButton">
+               <property name="text">
+                <string>Edit User</string>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/images/edit.svg</normaloff>:/images/edit.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="deleteUserButton">
+               <property name="text">
+                <string>Delete User</string>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/images/trash-2.svg</normaloff>:/images/trash-2.svg</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -307,8 +418,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
-     <height>25</height>
+     <width>1280</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

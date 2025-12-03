@@ -20,6 +20,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Instantiate DashboardPage and add it to the stacked widget
+    m_dashboardPage = new DashboardPage(this);
+    ui->contentStackedWidget->addWidget(m_dashboardPage); // Add as the first page (index 0)
+
     // DatabaseManager is now set from main.cpp, so we don't create it here.
     // The pointer m_dbManager will be null until set.
     m_dbManager = nullptr;
@@ -106,26 +110,28 @@ void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
     ui->completeSaleButton->setIcon(QIcon(":/images/check-circle.svg"));
     ui->cancelSaleButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton)); // Keep this default for now
     
-    // Set icons for the tabs themselves
-    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->inventoryTab), QIcon(":/images/package.svg"));
-    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->posTab), QIcon(":/images/shopping-cart.svg"));
-    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->reportsTab), QIcon(":/images/bar-chart-2.svg"));
-    ui->mainTabWidget->setTabIcon(ui->mainTabWidget->indexOf(ui->userManagementTab), QIcon(":/images/user.svg"));
-    
     // Connect signals and slots
     connect(ui->posProductListView, &QListView::clicked, this, &MainWindow::onProductListViewClicked);
     connect(ui->completeSaleButton, &QPushButton::clicked, this, &MainWindow::onCompleteSaleClicked);
     connect(ui->cancelSaleButton, &QPushButton::clicked, this, &MainWindow::onCancelSaleClicked);
+    connect(ui->navigationListWidget, &QListWidget::currentRowChanged, this, &MainWindow::on_navigationListWidget_currentRowChanged);
 }
 
 void MainWindow::postLoginSetup(const User &user)
 {
+    // Scale logo to fit the label without distortion
+    QPixmap logoPixmap(":/images/poslogo.png");
+    if (!logoPixmap.isNull()) {
+        ui->logoLabel->setPixmap(logoPixmap.scaled(ui->logoLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+
     m_currentUser = user;
     qDebug() << "User" << m_currentUser.username << "logged in with role" << m_currentUser.role;
 
     // Apply permissions and setup tabs now that the user is logged in
     applyPermissions();
     setupPosTab();
+    updateStatsBar();
 }
 
 MainWindow::~MainWindow()
@@ -148,6 +154,7 @@ void MainWindow::on_addProductButton_clicked()
         if (m_dbManager->addProduct(data)) {
             m_productsModel->select(); // Refresh the model
             setupPosTab(); // Refresh the POS tab
+            updateStatsBar();
         } else {
             QMessageBox::warning(this, "Error", "Failed to add product to the database.");
         }
@@ -178,6 +185,7 @@ void MainWindow::on_editProductButton_clicked()
         if (m_dbManager->updateProduct(id, data)) {
             m_productsModel->select(); // Refresh the model
             setupPosTab(); // Refresh the POS tab
+            updateStatsBar();
         } else {
             QMessageBox::warning(this, "Error", "Failed to update product in the database.");
         }
@@ -203,6 +211,7 @@ void MainWindow::on_deleteProductButton_clicked()
         if (m_dbManager->deleteProduct(id)) {
             m_productsModel->select(); // Refresh the model
             setupPosTab(); // Refresh the POS tab
+            updateStatsBar();
         } else {
             QMessageBox::warning(this, "Error", "Failed to delete product from the database.");
         }
@@ -304,6 +313,7 @@ void MainWindow::onCompleteSaleClicked()
         m_productsModel->select(); // Refresh inventory view
         m_salesModel->select();    // Refresh sales view
         setupPosTab(); // Refresh POS product list (to update quantities)
+        updateStatsBar();
     } else {
         QMessageBox::critical(this, "Error", "Failed to process the sale. Check database connection.");
     }
@@ -415,11 +425,88 @@ void MainWindow::on_deleteUserButton_clicked()
 
 void MainWindow::applyPermissions()
 {
-    if (m_currentUser.role == "Cashier") {
-        // Cashier has limited access
-        ui->mainTabWidget->removeTab(ui->mainTabWidget->indexOf(ui->inventoryTab));
-        ui->mainTabWidget->removeTab(ui->mainTabWidget->indexOf(ui->reportsTab));
-        ui->mainTabWidget->removeTab(ui->mainTabWidget->indexOf(ui->userManagementTab));
-    }
-    // If the role is "Admin", do nothing, they can see everything.
+    // This function now just triggers the navigation setup,
+    // which internally handles the role-based logic.
+    setupNavigation();
 }
+
+void MainWindow::setupNavigation()
+{
+    ui->navigationListWidget->clear();
+
+    const QSize iconSize = ui->navigationListWidget->iconSize();
+
+    // Add Dashboard item (Index 0)
+    QPixmap dashboardPixmap(":/images/bar-chart-2.svg"); // Using bar-chart-2 for dashboard
+    QIcon dashboardIcon(dashboardPixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    QListWidgetItem *dashboardItem = new QListWidgetItem(dashboardIcon, "Dashboard");
+    ui->navigationListWidget->addItem(dashboardItem);
+
+    // Add Point of Sale item (Index 1)
+    QPixmap posPixmap(":/images/poos.png");
+    QIcon posIcon(posPixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    QListWidgetItem *posItem = new QListWidgetItem(posIcon, "Point of Sale");
+    ui->navigationListWidget->addItem(posItem);
+
+    // Add Admin-only items (Indices 2, 3, 4)
+    if (m_currentUser.role == "Admin") {
+        // Inventory Icon (Index 2)
+        QPixmap docPixmap(":/images/document.png");
+        QIcon docIcon(docPixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        QListWidgetItem *inventoryItem = new QListWidgetItem(docIcon, "Inventory");
+        ui->navigationListWidget->addItem(inventoryItem);
+
+        // Reports Icon (Index 3)
+        QPixmap stockPixmap(":/images/en-stock.png");
+        QIcon stockIcon(stockPixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        QListWidgetItem *reportsItem = new QListWidgetItem(stockIcon, "Reports");
+        ui->navigationListWidget->addItem(reportsItem);
+
+        // User Management Icon (Index 4)
+        QPixmap profilPixmap(":/images/profil.png");
+        QIcon profilIcon(profilPixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        QListWidgetItem *usersItem = new QListWidgetItem(profilIcon, "User Management");
+        ui->navigationListWidget->addItem(usersItem);
+    }
+    
+    // Set the default selected item to be the first one (Dashboard)
+    if (ui->navigationListWidget->count() > 0) {
+        ui->navigationListWidget->setCurrentRow(0);
+    }
+}
+
+void MainWindow::on_navigationListWidget_currentRowChanged(int row)
+{
+    if (row >= 0) {
+        // Refresh dashboard data when dashboard page is selected
+        if (row == 0) { // Assuming Dashboard is at index 0
+            if (m_dashboardPage && m_dbManager) {
+                m_dashboardPage->refreshData(m_dbManager);
+            }
+        }
+        ui->contentStackedWidget->setCurrentIndex(row);
+    }
+}
+
+// Helper function to format large numbers
+static QString formatValue(double value) {
+    if (value >= 1000000) {
+        return QString("$%1M").arg(value / 1000000.0, 0, 'f', 1);
+    } else if (value >= 1000) {
+        return QString("$%1K").arg(value / 1000.0, 0, 'f', 1);
+    }
+    return QString("$%1").arg(value, 0, 'f', 2);
+}
+
+void MainWindow::updateStatsBar()
+{
+    if (!m_dbManager) return;
+
+    double revenue = m_dbManager->getTotalRevenue();
+    double stockValue = m_dbManager->getTotalStockValue();
+
+    ui->revenueValueLabel->setText(formatValue(revenue));
+    ui->stockValueLabel->setText(formatValue(stockValue));
+}
+
+

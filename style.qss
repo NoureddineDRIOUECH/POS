@@ -1,178 +1,215 @@
-/* =================================================================================
-   Modern Professional Stylesheet for POS Application
-   ================================================================================= */
-
-/* ---------------------------------------------------------------------------------
-   1. General & Window
-   --------------------------------------------------------------------------------- */
+/* ----------------- Global Styles ----------------- */
 QWidget {
-    font-family: "Poppins";
-    color: #212529; /* Dark gray for text */
+    font-family: 'Poppins';
+    background-color: #f8f9fa; /* Light gray background */
+    color: #212529; /* Dark text color */
 }
 
-QMainWindow, QDialog {
-    background-color: #f0f2f5; /* Light, soft background */
+QMainWindow {
+    background-color: #ffffff; /* White background for the main window */
 }
 
-/* Specific Style for the Login Dialog Background */
-QDialog#LoginDialog {
-    background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #eef2f7, stop: 1 #f0f2f5);
+/* ----------------- Sidebar ----------------- */
+#sidebarWidget {
+    background-color: #f1f3f5; /* A slightly different light gray for the sidebar */
+    border-right: 1px solid #dee2e6;
 }
 
-/* ---------------------------------------------------------------------------------
-   2. Tab Widget & Tab Bar
-   --------------------------------------------------------------------------------- */
-QTabWidget::pane {
-    border: 1px solid #dee2e6;
-    border-top: 0px;
-    border-radius: 0 0 8px 8px;
-    background-color: #ffffff;
+#logoLabel {
     padding: 10px;
 }
 
-QTabBar::tab {
-    background-color: #e9ecef; /* Light gray for non-selected tabs */
+#navigationListWidget {
+    border: none;
+    background-color: transparent; /* Inherit from sidebarWidget */
+}
+
+#navigationListWidget::item {
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin: 2px 10px; /* Add some margin for spacing */
     color: #495057;
-    padding: 12px 25px;
-    margin-right: 2px;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    border: 1px solid #dee2e6;
-    border-bottom: none;
+    font-weight: 500;
 }
 
-QTabBar::tab:hover {
-    background-color: #f8f9fa; /* Lighter on hover */
+#navigationListWidget::item:hover {
+    background-color: #e9ecef;
 }
 
-QTabBar::tab:selected {
-    background-color: #ffffff; /* White for selected tab */
-    color: #007bff; /* Blue for selected tab text */
-    font-weight: bold;
-    border: 1px solid #dee2e6;
-    border-bottom: 1px solid #ffffff; /* Seamless with pane */
+#navigationListWidget::item:selected {
+    background-color: #0d6efd; /* Blue */
+    color: white;
 }
 
-/* ---------------------------------------------------------------------------------
-   3. Input Fields (QLineEdit)
-   --------------------------------------------------------------------------------- */
-QLineEdit {
+/* ----------------- Stats Bar ----------------- */
+#statsBarWidget {
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#revenueWidget, #stockValueWidget {
     background-color: #f8f9fa;
-    color: #333333;
-    border: 1px solid #ced4da;
     border-radius: 8px;
     padding: 10px;
-    font-size: 11pt;
 }
 
-QLineEdit:focus {
-    border: 1px solid #007bff; /* Blue focus border */
+#revenueTitleLabel, #stockValueTitleLabel {
+    color: #6c757d; /* Muted text color for titles */
+    font-size: 12px;
+    font-weight: 500;
 }
 
-/* Specific style for the search bar */
-QLineEdit#searchLineEdit {
-    padding-left: 15px; /* Make space for an icon if added */
+#revenueValueLabel, #stockValueLabel {
+    color: #212529;
+    font-size: 20px;
+    font-weight: 600;
 }
 
-/* ---------------------------------------------------------------------------------
-   4. Buttons (QPushButton)
-   --------------------------------------------------------------------------------- */
+
+/* ----------------- Buttons ----------------- */
 QPushButton {
+    background-color: #0d6efd; /* Primary blue */
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 10pt;
-    min-width: 120px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 QPushButton:hover {
-    opacity: 0.9; /* General hover effect */
+    background-color: #0b5ed7; /* Darker blue on hover */
 }
 
 QPushButton:pressed {
-    opacity: 0.8; /* General pressed effect */
+    background-color: #0a58ca; /* Even darker when pressed */
 }
 
-/* Specific Button Colors using Attribute Selectors */
-QPushButton[objectName*="add"] { background-color: #28a745; } /* Green */
-QPushButton[objectName*="add"]:hover { background-color: #218838; }
+QPushButton:disabled {
+    background-color: #a0a0a0;
+    color: #e0e0e0;
+}
 
-QPushButton[objectName*="edit"] { background-color: #007bff; } /* Blue */
-QPushButton[objectName*="edit"]:hover { background-color: #0069d9; }
-
-QPushButton[objectName*="delete"] { background-color: #dc3545; } /* Red */
-QPushButton[objectName*="delete"]:hover { background-color: #c82333; }
-
-QPushButton#completeSaleButton { background-color: #28a745; } /* Green */
-QPushButton#completeSaleButton:hover { background-color: #218838; }
-
-QPushButton#cancelSaleButton { background-color: #dc3545; } /* Red */
-QPushButton#cancelSaleButton:hover { background-color: #c82333; }
-
-QPushButton#loginButton { background-color: #007bff; } /* Blue */
-QPushButton#loginButton:hover { background-color: #0069d9; }
-
-
-/* ---------------------------------------------------------------------------------
-   5. Table & List Views
-   --------------------------------------------------------------------------------- */
-QTableView, QListView {
+/* ----------------- Input Fields ----------------- */
+QLineEdit, QTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    gridline-color: #e9ecef;
-    border-radius: 8px;
-    selection-background-color: #cfe2ff; /* Light blue for selection */
-    selection-color: #212529;
-    alternate-background-color: #f8f9fa; /* Alternating row color */
-}
-
-QTableView::item, QListView::item {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
     padding: 8px;
-    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
 }
 
-QListView::item:hover {
-    background-color: #e9ecef; /* Hover highlight for list items */
+QLineEdit:focus, QTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
+    border-color: #86b7fe; /* Blue glow on focus */
+    outline: 0;
+}
+
+/* ----------------- Labels ----------------- */
+QLabel {
+    font-size: 14px;
+    padding-bottom: 5px;
+    background-color: transparent;
+}
+
+/* ----------------- Table View ----------------- */
+QTableView {
+    border: 1px solid #dee2e6;
+    gridline-color: #dee2e6;
+    background-color: #ffffff;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+QTableView::item {
+    padding: 5px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+QTableView::item:selected {
+    background-color: #cfe2ff;
+    color: #000;
 }
 
 QHeaderView::section {
-    background-color: #f8f9fa;
-    color: #343a40;
-    padding: 10px;
-    border: none;
-    border-bottom: 2px solid #dee2e6;
-    font-weight: bold;
+    background-color: #f1f3f5;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    font-size: 14px;
+    font-weight: 600; /* Bolder headers */
+    color: #495057;
 }
 
-/* ---------------------------------------------------------------------------------
-   6. Specific Labels & Frames (Login Page)
-   --------------------------------------------------------------------------------- */
-QFrame#centralFrame {
+/* ----------------- Dialogs ----------------- */
+QDialog {
     background-color: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e0e0e0;
 }
 
-QFrame#centralFrame:hover {
-    border: 1px solid #007bff;
+/* ----------------- Scroll Bars ----------------- */
+QScrollBar:vertical {
+    border: none;
+    background: #e9ecef;
+    width: 10px;
+    margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:vertical {
+    background: #ced4da;
+    min-height: 20px;
+    border-radius: 5px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
 }
 
-QLabel#errorLabel {
-    color: #dc3545; /* Red for errors */
-    font-size: 9pt;
+QScrollBar:horizontal {
+    border: none;
+    background: #e9ecef;
+    height: 10px;
+    margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:horizontal {
+    background: #ced4da;
+    min-width: 20px;
+    border-radius: 5px;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0px;
 }
 
-QLabel#titleLabel {
-    font-size: 18pt;
-    font-weight: bold;
+/* ----------------- Dashboard Page ----------------- */
+#DashboardPage {
+    background-color: #f8f9fa;
+}
+
+#dashboardTitleLabel {
     color: #343a40;
+    margin-bottom: 15px;
 }
 
-QLabel#totalAmountLabel {
-    color: #28a745; /* Green for total */
-    font-size: 20pt;
-    font-weight: bold;
-    padding: 10px;
+#cardTotalProducts, #cardTopSelling, #weeklySalesCard {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
 }
+
+#totalProductsTitle, #topSellingTitle, #weeklySalesTitle {
+    color: #6c757d;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+#totalProductsValue, #topSellingValue {
+    color: #212529;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+#weeklySalesTextEdit {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: #ffffff;
+    padding: 10px;
+    font-size: 13px;
+    color: #212529;
+}
+

@@ -10,6 +10,7 @@
 #include "product.h"
 #include "cartitem.h"
 #include "databasemanager.h" // For User struct
+#include "dashboardpage.h" // Include the new DashboardPage header
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -47,7 +48,11 @@ private slots:
     void on_editUserButton_clicked();
     void on_deleteUserButton_clicked();
 
+    void on_navigationListWidget_currentRowChanged(int row);
+
 private:
+    void setupNavigation();
+    void updateStatsBar();
     Ui::MainWindow *ui;
     QSqlTableModel *m_productsModel; // Declare the model
     QSqlTableModel *m_salesModel; // Declare the sales model
@@ -58,6 +63,7 @@ private:
     QStandardItemModel *m_posProductsModel;
     QStandardItemModel *m_cartModel;
     User m_currentUser; // Store the currently logged-in user
+    DashboardPage *m_dashboardPage;
 
     void setupPosTab();
     void applyPermissions();

@@ -16,6 +16,10 @@
         <file>images/iconapp.png</file>
         <file>images/poslogo.png</file>
         <file>pass.png</file>
+        <file>images/document.png</file>
+        <file>images/en-stock.png</file>
+        <file>images/profil.png</file>
+        <file>images/poos.png</file>
     </qresource>
     <qresource prefix="/fonts">
         <file>Font/Poppins-Black.ttf</file>
