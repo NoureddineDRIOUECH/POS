@@ -85,6 +85,9 @@ void MainWindow::setDatabaseManager(DatabaseManager *dbManager)
     m_cartModel = new QStandardItemModel(0, 3, this);
     m_cartModel->setHorizontalHeaderLabels({"Product", "Quantity", "Subtotal"});
     ui->cartTableView->setModel(m_cartModel);
+    ui->cartTableView->setAlternatingRowColors(true);
+    ui->cartTableView->setShowGrid(false);
+    ui->cartTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     // Initialize the proxy model for filtering
     m_proxyModel = new QSortFilterProxyModel(this);

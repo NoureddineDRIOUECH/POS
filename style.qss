@@ -385,3 +385,98 @@ QWidget#cardSalesMonth:hover {
 #deleteProductButton:hover {
     background-color: #bb2d3b;
 }
+
+/* ----------------- Table View ----------------- */
+QTableView {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    gridline-color: transparent; /* Hides the ugly default grid */
+    font-size: 14px;
+    selection-background-color: #e7f1ff; /* Very light blue for selection */
+    selection-color: #0d6efd; /* Blue text for selection */
+    outline: 0; /* Removes the dotted line when clicked */
+}
+
+/* The items (cells) */
+QTableView::item {
+    border-bottom: 1px solid #f1f3f5; /* Only horizontal lines */
+    padding: 10px 15px; /* More breathing room */
+    color: #495057;
+}
+
+/* Hover effect for rows - Makes the app feel alive */
+QTableView::item:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* Selected item style */
+QTableView::item:selected {
+    background-color: #e7f1ff;
+    border-bottom: 1px solid #cfe2ff;
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+/* The Header (Top bar) */
+QHeaderView {
+    background-color: #0d6efd; /* Match your primary button color */
+    border: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+QHeaderView::section {
+    background-color: #0d6efd; /* Primary Blue Background */
+    color: #ffffff; /* White text */
+    padding: 12px 15px;
+    border: none;
+    border-right: 1px solid #0b5ed7; /* Subtle separator */
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase; /* Modern touch */
+    letter-spacing: 0.5px;
+}
+
+/* The top-left corner button (often forgotten) */
+QTableCornerButton::section {
+    background-color: #0d6efd;
+    border: none;
+    border-top-left-radius: 8px;
+}
+QTableView::item {
+    /* Mettre une couleur de texte claire (moins dure que le noir pur) */
+    color: #495057; 
+    
+    /* Ajouter de l'espace autour du texte pour respirer */
+    padding: 10px 15px; 
+    
+    /* Supprimer les bordures internes (la grille est gérée par le border-bottom) */
+    border: none;
+    
+    /* Ne garder qu'une fine ligne horizontale pour séparer les rangées */
+    border-bottom: 1px solid #f1f3f5; 
+}
+
+QTableView {
+    /* Définir une couleur de fond très légère pour les lignes alternées */
+    alternate-background-color: #f8f9fa; 
+}
+QTableView::item:hover {
+    /* Un fond très légèrement grisé au survol */
+    background-color: #e9ecef; 
+    
+    /* Rendre le texte plus foncé au survol pour un meilleur contraste */
+    color: #212529; 
+}
+QTableView::item:selected {
+    /* Utiliser un fond bleu clair (douceur) */
+    background-color: #cfe2ff; 
+    
+    /* Utiliser le bleu principal pour le texte (clarté) */
+    color: #0d6efd; 
+    
+    /* Optionnel : Rendre la police un peu plus audacieuse */
+    font-weight: 500;
+}
