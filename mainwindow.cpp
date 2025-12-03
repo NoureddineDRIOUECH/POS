@@ -477,14 +477,27 @@ void MainWindow::setupNavigation()
 
 void MainWindow::on_navigationListWidget_currentRowChanged(int row)
 {
-    if (row >= 0) {
+    if (row < 0) return;
+
+    QListWidgetItem* item = ui->navigationListWidget->item(row);
+    if (!item) return;
+
+    const QString text = item->text();
+
+    if (text == "Dashboard") {
         // Refresh dashboard data when dashboard page is selected
-        if (row == 0) { // Assuming Dashboard is at index 0
-            if (m_dashboardPage && m_dbManager) {
-                m_dashboardPage->refreshData(m_dbManager);
-            }
+        if (m_dashboardPage && m_dbManager) {
+            m_dashboardPage->refreshData(m_dbManager);
         }
-        ui->contentStackedWidget->setCurrentIndex(row);
+        ui->contentStackedWidget->setCurrentWidget(m_dashboardPage);
+    } else if (text == "Point of Sale") {
+        ui->contentStackedWidget->setCurrentWidget(ui->posPage);
+    } else if (text == "Inventory") {
+        ui->contentStackedWidget->setCurrentWidget(ui->inventoryPage);
+    } else if (text == "Reports") {
+        ui->contentStackedWidget->setCurrentWidget(ui->reportsPage);
+    } else if (text == "User Management") {
+        ui->contentStackedWidget->setCurrentWidget(ui->usersPage);
     }
 }
 

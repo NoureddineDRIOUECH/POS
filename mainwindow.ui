@@ -116,6 +116,9 @@
           </size>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_stats">
+          <property name="spacing">
+           <number>20</number>
+          </property>
           <item>
            <widget class="QWidget" name="revenueWidget" native="true">
             <layout class="QVBoxLayout" name="verticalLayout_revenue">
