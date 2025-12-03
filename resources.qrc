@@ -20,6 +20,7 @@
         <file>images/en-stock.png</file>
         <file>images/profil.png</file>
         <file>images/poos.png</file>
+        <file>images/dash.png</file>
     </qresource>
     <qresource prefix="/fonts">
         <file>Font/Poppins-Black.ttf</file>

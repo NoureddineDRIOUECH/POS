@@ -126,6 +126,7 @@ void MainWindow::postLoginSetup(const User &user)
     }
 
     m_currentUser = user;
+    ui->greetingLabel->setText(QString("Hello, %1").arg(user.username));
     qDebug() << "User" << m_currentUser.username << "logged in with role" << m_currentUser.role;
 
     // Apply permissions and setup tabs now that the user is logged in
@@ -235,7 +236,7 @@ void MainWindow::setupPosTab()
     ui->posProductListView->setModel(m_posProductsModel);
 
     QList<Product> products = m_dbManager->getAllProducts();
-    for (const auto& product : products) {
+    for (const auto& product : qAsConst(products)) {
         if (product.quantity > 0) { // Only show items that are in stock
             // Format text with a newline for better layout in grid view
             QString itemText = QString("%1\n$%2").arg(product.name).arg(product.price, 0, 'f', 2);
@@ -303,7 +304,7 @@ void MainWindow::onCompleteSaleClicked()
     }
 
     double total = 0.0;
-    for(const auto& item : m_cart) total += item.price * item.quantity;
+    for(const auto& item : qAsConst(m_cart)) total += item.price * item.quantity;
 
     bool success = m_dbManager->processSale(m_cart, total, m_currentUser.id);
 
@@ -437,7 +438,7 @@ void MainWindow::setupNavigation()
     const QSize iconSize = ui->navigationListWidget->iconSize();
 
     // Add Dashboard item (Index 0)
-    QPixmap dashboardPixmap(":/images/bar-chart-2.svg"); // Using bar-chart-2 for dashboard
+    QPixmap dashboardPixmap(":/images/dash.png");
     QIcon dashboardIcon(dashboardPixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     QListWidgetItem *dashboardItem = new QListWidgetItem(dashboardIcon, "Dashboard");
     ui->navigationListWidget->addItem(dashboardItem);
