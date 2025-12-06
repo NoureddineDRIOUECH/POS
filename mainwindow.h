@@ -32,6 +32,9 @@ public:
     void setDatabaseManager(DatabaseManager *dbManager);
     void postLoginSetup(const User &user);
 
+signals:
+    void userLoggedOut();
+
 private slots:
     void on_addProductButton_clicked();
     void on_editProductButton_clicked();
@@ -42,6 +45,7 @@ private slots:
     void onCancelSaleClicked();
     void on_searchLineEdit_textChanged(const QString &text);
     void on_salesTableView_doubleClicked(const QModelIndex &index);
+    void on_logoutButton_clicked();
 
     // User Management Slots
     void on_addUserButton_clicked();

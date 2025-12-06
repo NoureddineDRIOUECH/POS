@@ -527,4 +527,13 @@ void MainWindow::updateStatsBar()
     ui->stockValueLabel->setText(formatValue(stockValue));
 }
 
+void MainWindow::on_logoutButton_clicked()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Logout", "Are you sure you want to logout?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        emit userLoggedOut();
+    }
+}
 
